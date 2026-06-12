@@ -38,6 +38,25 @@ function included(srcPath) {
   return true;
 }
 
+async function cleanStagedCopy(stage) {
+  for (const name of DENY_TOP) {
+    await rm(join(stage, name), { recursive: true, force: true });
+  }
+
+  async function removeDeniedLeaves(dir) {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      const path = join(dir, entry.name);
+      if (DENY_LEAF.has(entry.name)) {
+        await rm(path, { recursive: true, force: true });
+      } else if (entry.isDirectory()) {
+        await removeDeniedLeaves(path);
+      }
+    }
+  }
+
+  await removeDeniedLeaves(stage);
+}
+
 async function emptyExceptGitkeep(dir) {
   if (!existsSync(dir)) {
     await mkdir(dir, { recursive: true });
@@ -59,6 +78,7 @@ async function patchFile(file, pattern, replacement) {
 // dir outside the repo, clean it, then move it into place.
 const stage = await mkdtemp(join(tmpdir(), 'caf-build-'));
 await cp(repoRoot, stage, { recursive: true, filter: (src) => included(src) });
+await cleanStagedCopy(stage);
 await rm(dest, { recursive: true, force: true });
 await cp(stage, dest, { recursive: true });
 await rm(stage, { recursive: true, force: true });
