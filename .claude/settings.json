@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if git status --porcelain 2>/dev/null | grep -qE '\\.(ts|tsx|js|jsx|mjs|cjs)$'; then bash scripts/verify.sh --quick || echo 'HOOK: verify --quick failed — do not present this work as done.'; fi"
+          }
+        ]
+      }
+    ]
+  }
+}

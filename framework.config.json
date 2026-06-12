@@ -1,0 +1,30 @@
+{
+  "//": "Active-set settings for Agentik. Source of truth for which rules/skills are live. Manage with the `configure` skill (/configure): switch-profile, enable, disable, status. Disabled modules are parked in .framework/disabled/ (never read by agents) — switching is lossless. Locked-core entries must stay true. rules/custom/ is always active and not listed here.",
+  "profile": null,
+  "rules": {
+    "00-verification": true,
+    "security": true,
+    "validation": true,
+    "typescript": true,
+    "testing": true,
+    "error-handling": true,
+    "git-commits": true,
+    "react-nextjs": true,
+    "api-design": true,
+    "ui-ux": true
+  },
+  "skills": {
+    "init-foundation": true,
+    "configure": true,
+    "write-spec": true,
+    "execute-spec": true,
+    "write-tests": true,
+    "code-review": true,
+    "debugging": true,
+    "customize": true,
+    "frontend-design": true,
+    "react-component": true,
+    "api-route": true,
+    "db-migration": true
+  }
+}

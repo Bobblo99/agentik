@@ -1,0 +1,8 @@
+---
+description: TypeScript conventions: strict mode, no any, unions over enums, naming
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+
+Canonical source: @rules/typescript.md — follow it exactly. Do not duplicate or
+reinterpret rules here; if this file and rules/typescript.md disagree, rules/typescript.md wins.

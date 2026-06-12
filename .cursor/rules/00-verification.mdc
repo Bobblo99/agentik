@@ -1,0 +1,8 @@
+---
+description: Anti-hallucination verification protocol and quality gates (Definition of Done)
+globs:
+alwaysApply: true
+---
+
+Canonical source: @rules/00-verification.md — follow it exactly. Do not duplicate or
+reinterpret rules here; if this file and rules/00-verification.md disagree, rules/00-verification.md wins.

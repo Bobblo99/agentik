@@ -1,0 +1,8 @@
+---
+description: API design: contract-first, validation, status codes, thin handlers
+globs: app/api/**/*,**/actions/**/*
+alwaysApply: false
+---
+
+Canonical source: @rules/api-design.md — follow it exactly. Do not duplicate or
+reinterpret rules here; if this file and rules/api-design.md disagree, rules/api-design.md wins.

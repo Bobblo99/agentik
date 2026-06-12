@@ -1,0 +1,8 @@
+---
+description: Error handling: boundary validation, Result patterns, no silent catch
+globs: **/*.ts,**/*.tsx
+alwaysApply: false
+---
+
+Canonical source: @rules/error-handling.md — follow it exactly. Do not duplicate or
+reinterpret rules here; if this file and rules/error-handling.md disagree, rules/error-handling.md wins.

@@ -1,0 +1,60 @@
+{
+  "name": "create-agentik",
+  "version": "1.0.0",
+  "description": "Scaffold an agentic-coding project: persistent memory, spec-driven workflow, and machine-enforced quality gates for Claude Code, Codex, Cursor and any AGENTS.md tool.",
+  "type": "module",
+  "bin": {
+    "create-agentik": "index.js"
+  },
+  "files": [
+    "index.js",
+    "lib/",
+    "template/"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node scripts/build-template.mjs",
+    "prepack": "node scripts/build-template.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint index.js lib scripts test",
+    "format": "prettier --check .",
+    "format:write": "prettier --write .",
+    "check": "npm run typecheck && npm run lint && npm run format",
+    "test": "node scripts/build-template.mjs && node test/cli.test.mjs"
+  },
+  "keywords": [
+    "agents.md",
+    "claude-code",
+    "codex",
+    "cursor",
+    "scaffold",
+    "create",
+    "agentic-coding",
+    "ai-agents"
+  ],
+  "license": "MIT",
+  "author": "Patrick Ehmann",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bobblo99/agentik.git",
+    "directory": "cli"
+  },
+  "bugs": {
+    "url": "https://github.com/Bobblo99/agentik/issues"
+  },
+  "homepage": "https://github.com/Bobblo99/agentik#readme",
+  "dependencies": {
+    "@clack/prompts": "^0.7.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^25.9.3",
+    "eslint": "^10.5.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.6.0",
+    "prettier": "^3.8.4",
+    "typescript": "^6.0.3"
+  }
+}

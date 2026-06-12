@@ -1,0 +1,31 @@
+# Agentik adopter CI — init-foundation copies this to
+# .github/workflows/verify.yml. Makes `pnpm verify` (the Definition of Done)
+# machine-enforced on every PR instead of honor-system. See AGENTS.md.
+name: verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # typecheck + lint + test — the same gate as local `pnpm verify`.
+      - run: pnpm verify
+
+      # Surfaces vulnerable dependencies (rules/security.md). Non-blocking by
+      # default; set --audit-level or drop `|| true` to make it a hard gate.
+      - run: pnpm audit --audit-level=high || true

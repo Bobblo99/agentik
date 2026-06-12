@@ -1,0 +1,26 @@
+{
+  "//": "Agentik strict base. Extend in your project's tsconfig.json: { \"extends\": \"./tsconfig.base.json\", ... }. Framework tooling (Next.js etc.) adds paths/jsx/plugins on top. See rules/typescript.md.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowJs": false,
+    "noEmit": true
+  }
+}

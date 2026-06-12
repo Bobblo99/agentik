@@ -1,0 +1,8 @@
+---
+description: UI/UX rules: design tokens, mandatory states, a11y minimum, responsive
+globs: **/*.tsx,**/*.css
+alwaysApply: false
+---
+
+Canonical source: @rules/ui-ux.md — follow it exactly. Do not duplicate or
+reinterpret rules here; if this file and rules/ui-ux.md disagree, rules/ui-ux.md wins.

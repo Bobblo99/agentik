@@ -1,0 +1,38 @@
+# Framework-integrity CI for the Agentik template repo itself.
+# Guards the structural invariants in scripts/check-framework.sh (mirror parity,
+# rule wiring, line budgets). Adopters get a SEPARATE gate workflow (verify.yml)
+# wired in by init-foundation from the active profile's assets.
+name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+jobs:
+  framework-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/check-framework.sh
+
+  cli:
+    # The create-agentik CLI: scaffold/add/detect logic, on a matrix to
+    # prove cross-platform behavior (the path handling especially).
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        node: [18, 20, 22]
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: cli
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install
+      - run: npm run check
+      - run: npm test

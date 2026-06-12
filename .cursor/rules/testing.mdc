@@ -1,0 +1,8 @@
+---
+description: Testing rules: spec-first test cases, Vitest/RTL conventions, regression tests
+globs: **/*.test.*,**/*.spec.*
+alwaysApply: false
+---
+
+Canonical source: @rules/testing.md — follow it exactly. Do not duplicate or
+reinterpret rules here; if this file and rules/testing.md disagree, rules/testing.md wins.

@@ -1,0 +1,8 @@
+---
+description: React/Next.js patterns: RSC by default, data fetching, structure
+globs: **/*.tsx,app/**/*
+alwaysApply: false
+---
+
+Canonical source: @rules/react-nextjs.md — follow it exactly. Do not duplicate or
+reinterpret rules here; if this file and rules/react-nextjs.md disagree, rules/react-nextjs.md wins.

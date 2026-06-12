@@ -1,0 +1,8 @@
+---
+description: Boundary validation: schema-first, z.infer, parse-don't-validate, zod v3/v4
+globs: **/*.ts,**/*.tsx
+alwaysApply: true
+---
+
+Canonical source: @rules/validation.md — follow it exactly. Do not duplicate or
+reinterpret rules here; if this file and rules/validation.md disagree, rules/validation.md wins.

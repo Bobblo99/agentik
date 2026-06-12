@@ -1,0 +1,8 @@
+---
+description: Security baseline: server-side authz, XSS/injection, secrets, deps, headers
+globs: **/*
+alwaysApply: true
+---
+
+Canonical source: @rules/security.md — follow it exactly. Do not duplicate or
+reinterpret rules here; if this file and rules/security.md disagree, rules/security.md wins.

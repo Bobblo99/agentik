@@ -1,0 +1,22 @@
+node_modules/
+dist/
+build/
+.next/
+out/
+coverage/
+*.log
+.env
+.env.local
+.env.*.local
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.mcp.json
+.agents/
+.codex/
+.claude/settings.local.json
+
+# create-agentik build artifacts
+cli/template/
+cli/node_modules/

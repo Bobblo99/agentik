@@ -1,0 +1,21 @@
+{
+  "//": "Type-checks the CLI's plain JS via JSDoc (dogfooding: the framework's own tool meets its TS rule). No emit.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "lib": ["ES2023"],
+    "allowJs": true,
+    "checkJs": true,
+    "noEmit": true,
+    "strict": true,
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false,
+    "noImplicitReturns": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "types": ["node"]
+  },
+  "include": ["index.js", "lib/**/*.js", "scripts/**/*.mjs"],
+  "exclude": ["template", "node_modules"]
+}
