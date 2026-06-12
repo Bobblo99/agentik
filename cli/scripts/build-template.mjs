@@ -6,7 +6,7 @@
 import { cp, rm, mkdir, mkdtemp, readdir, writeFile, readFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join, dirname, relative, sep } from 'node:path';
+import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const cliDir = join(dirname(fileURLToPath(import.meta.url)), '..');
@@ -32,7 +32,7 @@ const DENY_LEAF = new Set(['.DS_Store', 'settings.local.json']);
 function included(srcPath) {
   const relPath = relative(repoRoot, srcPath);
   if (relPath === '') return true;
-  const parts = relPath.split(sep);
+  const parts = relPath.split(/[\\/]/);
   if (DENY_TOP.has(parts[0])) return false;
   if (DENY_LEAF.has(parts[parts.length - 1])) return false;
   return true;
