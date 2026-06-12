@@ -82,7 +82,7 @@ async function syncTree(templateDir, targetDir, tree, context, stats) {
   for (const sourcePath of await listFiles(sourceRoot)) {
     const child = relative(sourceRoot, sourcePath);
     const destinationPath = join(targetDir, tree, child);
-    await syncFile(sourcePath, destinationPath, join(tree, child), context, stats);
+    await syncFile(sourcePath, destinationPath, `${tree}/${child.split(sep).join('/')}`, context, stats);
   }
 }
 
