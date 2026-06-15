@@ -29,11 +29,30 @@
   trigger in the UI is not access control.
 - `useFormStatus` for pending UI in a form child, instead of prop-drilling it.
 
-## Structure
-- Feature-first folders; route-private components colocated with the route,
-  shared ones in the agreed shared dir (check `memory/conventions.md`).
+## Structure (feature/component-based, folder-per-component)
+- Group by **feature**, not by file type. **Every component gets its own
+  folder** — never a loose `Foo.tsx` among ten others. Standard layout
+  (`src/` optional):
+  ```
+  app/                      # routes, layouts, route handlers (keep thin)
+  features/<feature>/
+    components/<Comp>/       # Comp.tsx · Comp.module.scss · Comp.test.tsx · index.ts
+    hooks/  server/  api.ts  types.ts  utils.ts
+  components/<Comp>/         # shared, cross-feature UI primitives (a folder each)
+  server/                   # server-only: db, services, auth ('server-only' pkg)
+  lib/                      # framework-agnostic clients/helpers
+  hooks/   utils/   types/  # shared, pure
+  styles/tokens.scss        # design tokens + global base
+  ```
+- **Colocate + barrel:** a component's files live together; an `index.ts`
+  re-exports it so imports stay `@/components/<Comp>`.
+- **Server vs client:** server-only modules live in `server/` and import the
+  `server-only` package; Client Components are marked `"use client"` and pushed
+  to leaves (see Component model). Never import `server/` into a client component.
+- Route-private → colocate with the route; promote to a feature or shared
+  `components/` only when reused. Check `memory/conventions.md` first.
 - `loading.tsx` / `error.tsx` / `not-found.tsx` boundaries per route group
-  where the UX needs them — they are part of the design, not optional.
+  where the UX needs them — part of the design, not optional.
 
 ## Discipline
 - Props typed explicitly; no `any` at component boundaries.

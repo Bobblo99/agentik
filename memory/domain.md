@@ -1,5 +1,7 @@
 # Domain & Business Context
 
+> **Memory type: semantic** (durable domain knowledge). See `docs/memory-model.md`.
+>
 > Durable description of WHAT this product is and the domain it operates in —
 > the counterpart to CONTEXT.md (which is volatile NOW-state). Agents read this
 > at task start to produce relevant, domain-correct code. Filled by

@@ -16,6 +16,12 @@ not bureaucracy. Test cases are designed HERE, before any code exists.
 2. **Verify the territory**: list the directories and open the files you
    plan to touch. Never write "modify `src/lib/api.ts`" without confirming
    that file exists. Unknowns go into "Open questions", not into guesses.
+   **Design the structure up front** (you are the architect): for new
+   components/features, decide the folder layout now — folder-per-component,
+   feature vs. shared `components/` vs. `server/`, where styles/hooks/types
+   live — per the Structure section of `rules/react-nextjs.md` (or the
+   project's `memory/conventions.md`). The layout is a planned decision, not an
+   accident at typing time.
 3. **Create** `specs/YYYY-MM-DD-<short-slug>.md` from `specs/TEMPLATE.md`.
    Fill EVERY section. Today's real date.
 4. **Write checkable acceptance criteria** — each one must be mechanically

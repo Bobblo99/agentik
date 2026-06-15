@@ -1,5 +1,7 @@
 # Project Context
 
+> **Memory type: working** (now-state; MemGPT "main context"). See `docs/memory-model.md`.
+>
 > Living document. HARD BUDGET: 80 lines. On every update: delete completed
 > items, move decisions → ADRs, move patterns → conventions.md. This is a
 > snapshot of NOW, not a log.

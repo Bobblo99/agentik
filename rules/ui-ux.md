@@ -1,11 +1,22 @@
 # Rule — UI / UX (profile: web-frontend, fullstack)
 
 ## Tokens & consistency
-- All visual values come from design tokens / the Tailwind theme. Raw hex
-  colors or magic px values in component code are defects — extend the theme
-  instead.
+- All visual values come from **design tokens** — never raw hex colors or magic
+  px in component code (a defect). The mechanism is the project's choice; the
+  principle is non-negotiable. Add/extend a token rather than hardcode.
 - Reuse existing components/variants; check what exists before building a
   near-duplicate.
+
+## Styling (SCSS Modules by default; Tailwind is a documented alternative)
+- Default: **CSS/SCSS Modules**, one `Component.module.scss` colocated with its
+  component. No global class soup; global CSS is only resets + base element styles.
+- Tokens live centrally as **CSS custom properties** (e.g. `styles/tokens.scss`
+  → `:root { --color-…; --space-…; --radius-… }`) and are consumed via
+  `var(--token)` in modules. One source of truth for color/space/type/radius.
+- Class names are local to the module (no BEM ceremony needed — the module
+  scopes them); compose with `class={styles.card}`.
+- (Tailwind path: same token principle via the theme; pick ONE per project and
+  record it in `memory/conventions.md`.)
 
 ## States are mandatory
 - Every data-driven view designs and implements: **loading** (skeleton over

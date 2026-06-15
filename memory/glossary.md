@@ -1,5 +1,7 @@
 # Glossary
 
+> **Memory type: semantic** (domain knowledge). See `docs/memory-model.md`.
+>
 > Domain terms with the project's exact meaning, so naming stays consistent
 > across sessions. Add a term the first time it shows up in requirements.
 

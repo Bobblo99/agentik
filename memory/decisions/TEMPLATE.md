@@ -1,3 +1,4 @@
+<!-- Memory type: episodic (decisions/ = the record of choices and why). See docs/memory-model.md -->
 # ADR-NNNN: <decision title, e.g. "Use Drizzle instead of Prisma">
 
 - **Date:** YYYY-MM-DD

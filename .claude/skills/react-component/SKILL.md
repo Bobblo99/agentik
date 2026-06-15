@@ -13,20 +13,26 @@ Follows `rules/react-nextjs.md` (binding). This skill is the build sequence.
    for interactivity (handlers, state, browser APIs) — and push the client
    boundary as deep (leaf-ward) as possible. Record non-obvious choices in
    the spec.
-2. **Placement**: feature-first. Component used by one route → colocate next
-   to it; shared across features → `components/` (or the project's agreed
-   shared dir — check `memory/conventions.md`). Verify existing structure
-   with a directory listing before creating files.
+2. **Placement (feature/component-based, folder-per-component)**: every
+   component gets its **own folder** with its files colocated — `Foo/Foo.tsx`
+   + `Foo.module.scss` + `Foo.test.tsx` + `index.ts` (barrel). Group by feature
+   (`features/<f>/components/<Comp>/`); shared primitives → top-level
+   `components/<Comp>/`; server-only logic → `server/` (see the layout in
+   rules/react-nextjs.md). Verify the existing structure with a directory
+   listing first (check `memory/conventions.md`).
 3. **Props**: explicit TypeScript interface, no `any`. Narrow inputs (pass
    `user`, not `data`). Avoid boolean explosion → use a `variant` union.
-4. **Data**: fetch on the server (RSC or route handler) — never `useEffect`
+4. **Styling**: a colocated `Foo.module.scss` (SCSS Modules default). Every
+   value comes from a token via `var(--token)` — no raw hex / magic px
+   (rules/ui-ux.md). Compose with `className={styles.foo}`.
+5. **Data**: fetch on the server (RSC or route handler) — never `useEffect`
    + fetch for initial data. Client state is for UI state only.
-5. **States**: implement loading/empty/error/success per the spec
+6. **States**: implement loading/empty/error/success per the spec
    (frontend-design skill). In App Router prefer `loading.tsx` /
    `error.tsx` boundaries where they fit.
-6. **Tests**: per the spec's test cases — render states, interactions by
+7. **Tests**: per the spec's test cases — render states, interactions by
    role/label (write-tests skill).
-7. `pnpm verify` + the visual check.
+8. `pnpm verify` + the visual check.
 
 ## Anti-patterns
 

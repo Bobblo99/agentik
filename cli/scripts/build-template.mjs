@@ -16,6 +16,7 @@ const dest = join(cliDir, 'template');
 // Top-level paths never copied into the template (CLI, vcs, deps, dev-only docs).
 const DENY_TOP = new Set([
   'cli',
+  'website',
   'node_modules',
   '.git',
   '.agents',
@@ -27,7 +28,7 @@ const DENY_TOP = new Set([
   'DEVELOPMENT.md',
 ]);
 // Files anywhere that should be dropped.
-const DENY_LEAF = new Set(['.DS_Store', 'settings.local.json']);
+const DENY_LEAF = new Set(['.DS_Store', 'settings.local.json', 'launch.json']);
 
 function included(srcPath) {
   const relPath = relative(repoRoot, srcPath);
@@ -108,7 +109,7 @@ await patchFile(
 );
 
 // Sanity: the snapshot must not contain the CLI or node_modules.
-for (const banned of ['cli', 'node_modules', '.agents', '.codex', '.github']) {
+for (const banned of ['cli', 'website', 'node_modules', '.agents', '.codex', '.github']) {
   if (existsSync(join(dest, banned))) {
     console.error(`✗ snapshot leaked ${banned}/`);
     process.exit(1);

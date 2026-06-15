@@ -18,8 +18,9 @@ looking output, and zero "forgot the empty state" bugs.
    on the screen, where the primary action lives. One short paragraph in the
    spec. This forces a decision instead of defaulting to "card grid again".
 3. **Tokens only.** Colors, spacing, radii, typography come from the design
-   tokens / Tailwind theme. A raw hex value or magic pixel number in
-   component code is a bug (rules/ui-ux.md). Need a new value → add a token.
+   tokens (CSS custom properties consumed in SCSS Modules by default, or the
+   Tailwind theme). A raw hex value or magic pixel number in component code is
+   a bug (rules/ui-ux.md). Need a new value → add a token.
 4. **Responsive from the start**: build mobile-first; verify 375px, ~768px,
    ~1280px. No horizontal scroll, tap targets ≥ 44px.
 5. **A11y pass while building, not after**: semantic elements (button is a

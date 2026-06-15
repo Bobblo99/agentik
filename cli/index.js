@@ -215,13 +215,24 @@ function gatesLine(gates) {
 }
 
 function proposalSummary(d) {
+  const extras = [];
+  if (d.language && d.language !== 'node') extras.push(`lang ${d.language}`);
+  if (d.router) extras.push(`${d.router}-router`);
+  if (d.monorepo) extras.push(d.monorepo.tool);
   return (
     `Detected: ${d.signals.join(', ') || 'nothing notable'}\n` +
-    `→ profile: ${d.profile}\n` +
+    `→ profile: ${d.profile}${extras.length ? ` (${extras.join(', ')})` : ''}\n` +
     `→ gates:   ${gatesLine(d.gates)}\n` +
     `→ pm:      ${d.packageManager || 'n/a'}` +
     (d.warnings.length ? `\n⚠ ${d.warnings.join('\n⚠ ')}` : '')
   );
+}
+
+// Language-aware "how to run the gate" hint (non-JS has no `<pm> verify` script).
+function verifyHint(r) {
+  return r.language === 'node'
+    ? `${pmExec(r.packageManager)} verify`
+    : 'bash scripts/verify.sh (after wiring gates)';
 }
 
 async function loadClack() {
@@ -259,9 +270,8 @@ async function runAddNonInteractive({ values, dir }) {
   const what = r.alreadyInit
     ? 'already initialized — filled missing files only'
     : `profile ${r.profile} applied`;
-  const run = pmExec(r.packageManager);
   console.log(`\n✓ added the framework to ${targetDir} (${what}).`);
-  console.log(`  Next: open with Claude/Codex → /init-foundation   (then \`${run} verify\`)`);
+  console.log(`  Next: open with Claude/Codex → /init-foundation   (then \`${verifyHint(r)}\`)`);
   return r;
 }
 
@@ -325,13 +335,12 @@ async function runAddInteractive({ values, dir }) {
   try {
     const r = await addInto({ targetDir, profile, detected: proposal, force: values.force, log: () => {} });
     s.stop('Added');
-    const run = pmExec(r.packageManager);
     const summary = r.alreadyInit
       ? 'Already initialized — filled missing files only.'
       : `Profile: ${r.profile}. Scripts added: ${r.scriptsAdded.join(', ') || 'none'} (gates wired to your tools).`;
     p.note(
       `${summary}\nSkipped ${r.skipped.length} file(s) that already existed.\n\n` +
-        `# open with Claude Code or Codex, then:\n/init-foundation   # finish gates + capture your domain\n# verify anytime:\n${run} verify`,
+        `# open with Claude Code or Codex, then:\n/init-foundation   # finish gates + capture your domain\n# verify anytime:\n${verifyHint(r)}`,
       'Next steps',
     );
     p.outro('Done — your code was never touched.');

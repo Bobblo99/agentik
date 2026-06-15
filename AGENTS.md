@@ -69,7 +69,9 @@ Read at task start, write at these moments — not "later":
 
 `memory/CONTEXT.md` has a hard budget of 80 lines. When updating: remove
 completed items, move decisions into ADRs, move patterns into conventions.
-Never let it grow into a log.
+Never let it grow into a log. **Consolidate** whenever it nears the budget:
+that eviction-and-promotion step keeps working memory small (the whole point —
+see `docs/memory-model.md` for why this design is what it is).
 
 ## Skills
 

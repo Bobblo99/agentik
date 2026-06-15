@@ -19,7 +19,10 @@ Set `false` in `framework.config.json` and move to `.framework/disabled/`
 
 ## Default stack (install on greenfield; ask before changing an existing app)
 - Next.js (App Router) + TypeScript strict
-- Tailwind CSS + shadcn/ui (tokens via Tailwind theme — see rules/ui-ux.md)
+- **SCSS Modules** (`sass`) + design tokens as CSS custom properties in
+  `styles/tokens.scss` — colocated `Component.module.scss` (see rules/ui-ux.md).
+  Copy `assets/styles/tokens.scss` as the starter. (Alternative: Tailwind +
+  shadcn/ui — same token principle; pick ONE, record it in conventions.)
 - zod for boundary validation
 - Vitest + @testing-library/react + jest-axe (+ Playwright/axe-playwright
   optional — ask) — see rules/testing.md
@@ -34,6 +37,8 @@ the dev deps they need. These ship the standards as enforced config, not prose:
 - `eslint.config.mjs` → root (flat config; needs `eslint`, `typescript-eslint`).
   Next.js: also add `next/core-web-vitals` + jsx-a11y to match rules/ui-ux.md.
 - `.prettierrc.json`, `.editorconfig` → root.
+- `styles/tokens.scss` → your `styles/` (design tokens as CSS custom
+  properties; import once in the root layout). Needs `sass`.
 - `workflows/verify.yml` → `.github/workflows/verify.yml` — CI gate on every PR.
 Delete the asset source dir after copying; an existing project keeps its own
 configs (offer the deltas, don't overwrite).

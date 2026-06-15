@@ -118,6 +118,17 @@ docs/                 orchestration, MCP guidance, adoption guide
 - **Modular stack.** The core is stack-agnostic; React/Next.js lives in a
   removable profile.
 
+## Grounded in research
+
+The memory system isn't a tidy folder — it's a human-readable implementation of
+established findings: small/budgeted working memory because long context
+degrades ([*Lost in the Middle*](https://arxiv.org/abs/2307.03172)),
+externalized files as tiered memory ([*MemGPT*](https://arxiv.org/abs/2310.08560)),
+and a working/episodic/semantic/procedural split that mirrors cognitive-agent
+architecture ([*CoALA*](https://arxiv.org/abs/2309.02427)) with an
+encode→retrieve→consolidate cadence ([*Generative Agents*](https://arxiv.org/abs/2304.03442)).
+Full rationale and the file→memory-type mapping: [`docs/memory-model.md`](docs/memory-model.md).
+
 See `docs/adopting.md` for existing-project adoption and maintenance.
 
 ## Distribution

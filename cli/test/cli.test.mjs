@@ -366,5 +366,47 @@ await test('cli entry: update --dry-run routes correctly', async (dir) => {
   assert.equal(await readFile(join(dir, 'memory', 'CONTEXT.md'), 'utf8'), contextBefore);
 });
 
+await test('detect: Python project → generic + ruff/mypy/pytest', async (dir) => {
+  await writeFile(join(dir, 'pyproject.toml'), '[project]\nname = "x"\n');
+  const d = detect(dir);
+  assert.equal(d.language, 'python');
+  assert.equal(d.profile, 'generic');
+  assert.deepEqual(d.gates, { typecheck: 'mypy .', lint: 'ruff check .', test: 'pytest' });
+  assert.equal(d.packageManager, 'pip');
+});
+
+await test('detect: Rust project → cargo gates', async (dir) => {
+  await writeFile(join(dir, 'Cargo.toml'), '[package]\nname = "x"\n');
+  const d = detect(dir);
+  assert.equal(d.language, 'rust');
+  assert.equal(d.gates.test, 'cargo test');
+  assert.equal(d.packageManager, 'cargo');
+});
+
+await test('detect: pnpm monorepo → tool + warning', async (dir) => {
+  await writeFile(join(dir, 'package.json'), JSON.stringify({ name: 'root' }));
+  await writeFile(join(dir, 'pnpm-workspace.yaml'), 'packages:\n  - "packages/*"\n');
+  const d = detect(dir);
+  assert.equal(d.monorepo?.tool, 'pnpm-workspaces');
+  assert.ok(d.warnings.some((w) => /monorepo/i.test(w)));
+});
+
+await test('detect: Next App Router is identified', async (dir) => {
+  await writeFile(join(dir, 'package.json'), JSON.stringify({ dependencies: { next: '15', react: '19' } }));
+  await mkdir(join(dir, 'app'), { recursive: true });
+  const d = detect(dir);
+  assert.equal(d.router, 'app');
+  assert.ok(d.signals.includes('app-router'));
+});
+
+await test('add: Python project (no package.json) applies generic, no script merge', async (dir) => {
+  await writeFile(join(dir, 'pyproject.toml'), '[project]\nname = "x"\n');
+  const r = await addInto({ targetDir: dir });
+  assert.equal(r.language, 'python');
+  assert.equal(r.profile, 'generic');
+  assert.equal(r.scriptsAdded.length, 0);
+  assertConsistent(dir);
+});
+
 console.log(failures ? `\n${failures} test(s) failed` : '\nall cli tests passed');
 process.exit(failures ? 1 : 0);

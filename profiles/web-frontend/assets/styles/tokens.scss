@@ -1,0 +1,64 @@
+// Agentik design tokens — the single source of truth for visual values.
+// Consume via var(--token) inside *.module.scss; never hardcode hex/px in
+// components (rules/ui-ux.md). Import once in the root layout:
+//   import "@/styles/tokens.scss";
+// Extend this file instead of inventing values.
+
+:root {
+  // Color (replace with your brand; keep semantic names, not raw hues)
+  --color-bg: #ffffff;
+  --color-surface: #f7f7f8;
+  --color-text: #14151a;
+  --color-text-muted: #5c5f6a;
+  --color-primary: #4f46e5;
+  --color-primary-contrast: #ffffff;
+  --color-border: rgb(20 21 26 / 12%);
+  --color-danger: #d92d20;
+  --color-success: #027a48;
+
+  // Spacing scale (4px base)
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  // Radius
+  --radius-sm: 6px;
+  --radius-md: 12px;
+  --radius-lg: 20px;
+  --radius-full: 999px;
+
+  // Typography
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Code", monospace;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: clamp(1.5rem, 3vw, 2.25rem);
+
+  // Layout & motion
+  --container: 72rem;
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 6%), 0 8px 24px rgb(0 0 0 / 6%);
+  --transition: 160ms ease;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-bg: #0e0f13;
+    --color-surface: #16181f;
+    --color-text: #f3f4f6;
+    --color-text-muted: #9aa0ac;
+    --color-border: rgb(255 255 255 / 12%);
+  }
+}
+
+// Respect reduced-motion globally (rules/ui-ux.md).
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition: 0ms;
+  }
+}

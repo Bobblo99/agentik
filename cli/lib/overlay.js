@@ -168,12 +168,24 @@ export async function addInto(opts) {
       pmAdapted = await adaptRunner(targetDir, proposal.packageManager);
       if (scriptsAdded.length) log(`added package.json scripts: ${scriptsAdded.join(', ')}`);
     } else {
-      log('no package.json — skipped script merge (wire gates manually, generic profile)');
+      const g = proposal.gates || {};
+      const wired = [
+        g.typecheck && `typecheck: ${g.typecheck}`,
+        g.lint && `lint: ${g.lint}`,
+        g.test && `test: ${g.test}`,
+      ].filter(Boolean);
+      if (wired.length) {
+        log(`no package.json (${proposal.language}) — wire these detected gates into scripts/verify.sh:`);
+        wired.forEach((w) => log(`    ${w}`));
+      } else {
+        log("no package.json — set your stack's gate commands in scripts/verify.sh (generic profile)");
+      }
     }
   }
 
   return {
     profile,
+    language: proposal.language,
     alreadyInit,
     dryRun,
     copied: stats.copied,

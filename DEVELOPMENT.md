@@ -36,19 +36,75 @@ existing projects. The repo root IS the template; `cli/` bundles a cleaned copy.
   Dogfooded (tsc checkJs + eslint + prettier). Cross-platform (CI matrix
   ubuntu+windows × node 18/20/22).
 
-## Next up (chosen, not yet built)
+## Website status (local-only, excluded from git)
 
-1. **Broader detection/profiles** — monorepo/workspaces, Next App-vs-Pages,
-   non-JS stacks (Python→ruff/mypy/pytest, Rust→clippy/cargo). Extend
-   `cli/lib/detect.js` + add profiles.
-2. Deferred robustness: transactional `add`/`update` (stage-then-move),
-   config-schema migrations, greenfield wiring
-   real gates.
+Visual QA **done** (Claude, 2026-06-12): 375/768/1280 overflow-free, 404 usable,
+tap targets ≥44px, focus-visible + reduced-motion present, anchor nav + install
+command + GitHub links correct. Fixed a real defect in
+`website/components/copy-command.tsx` (clipboard call had no try/catch → no
+feedback in non-secure contexts; added guarded API + textarea fallback).
+`npm run check` + `npm run build` green. Spec archived. Added a
+"GROUNDED IN RESEARCH" section (#research) surfacing the memory science with the
+four verified arXiv sources, styled in the existing workflow pattern (44px tap
+targets, no overflow, build green). Added a **/docs area** — own routes +
+sidebar, 6 core pages (Overview, Quickstart, How it works, Agents & skills,
+Memory model, Rules & gates) in SCSS Modules + folder-per-component (DocsSidebar);
+build green (6 static docs routes), active-state + responsive verified; content
+grounded in the real framework material. Remaining: hosting/domain (metadataBase =
+agentik.dev — confirm ownership + real OG image), finish the marketing-page
+SCSS-module split (Phase 2 in progress), + move `website/` to its own repo.
+Preview locally: `.claude/launch.json` has a `website` config (excluded from the
+adopter snapshot via build-template DENY_LEAF).
 
-## Release checklist
+## Research grounding (done 2026-06-12)
 
-Push verified `main` → record `demo.gif` (`vhs cli/demo.tape`) → confirm npm
-ownership/name availability → `cd cli && npm publish`.
+`docs/memory-model.md` grounds the memory design in verified literature
+(Lost-in-the-Middle 2307.03172, MemGPT 2310.08560, CoALA 2309.02427, Generative
+Agents 2304.03442). Each `memory/*` file is labelled with its CoALA memory type
+(working/episodic/semantic/procedural); AGENTS.md names a consolidation trigger;
+README has a "Grounded in research" note. Only web-verified citations used.
+
+## Broader detection (done 2026-06-12)
+
+`cli/lib/detect.js` now detects `language` (node/python/rust/go), `monorepo`
+(pnpm-workspaces/turbo/lerna/nx/npm), Next `router` (app/pages/mixed), and
+language-aware gates + package manager. Non-JS maps to the **generic** profile
+with stack-correct gate proposals (Python ruff/mypy/pytest, Rust cargo*, Go go*)
+— no new profile rule-sets by design. `add` on a non-JS project prints the
+exact gates to wire into `scripts/verify.sh`. 5 new tests; e2e on Rust verified.
+
+## Next up (none of the original 4-pick remain)
+
+All four chosen dev focuses are done (update ✅ by Codex; dogfood ✅; robustness ✅;
+broader detection ✅). Optional future:
+1. Deferred robustness: transactional `add`/`update` (stage-then-move),
+   config-schema migrations, greenfield wiring real gates.
+2. Per-language framework profiles (python/rust) with their own rule-sets, if
+   demand appears — currently generic + detected gates covers it.
+
+## Release / publish runbook (`create-agentik`)
+
+Status: package metadata complete; name `create-agentik` is **available** on npm
+(404); `npm pack --dry-run` ships 87 files / ~61 kB (index.js, lib/, bundled
+template, README, LICENSE) — no node_modules/tests/website leak. A
+`prepublishOnly` hook runs `check` + `test`, so a broken build cannot publish.
+
+Steps (you run these — they need your npm account):
+
+1. `cd cli && npm run check && npm test` — confirm green locally.
+2. `npm pack --dry-run` — eyeball the file list one last time.
+3. `npm login` (once).
+4. **Version:** currently `1.0.0`. Consider `0.1.0` for a first public release
+   (signals "early"); bump with `npm version <x>` if so.
+5. `npm publish --access public` (the `prepack` build + `prepublishOnly` gate
+   run automatically).
+6. Verify: `npm create agentik@latest /tmp/smoke -- --profile generic --yes`.
+7. Tag the repo: `git tag vX.Y.Z && git push --tags`.
+
+Dependency note: the website's install command (`npm create agentik@latest`)
+only works AFTER step 5 — publish before promoting the site. PostCSS audit
+advisory in the website is nested in Next; wait for a patched Next, do not
+`audit fix --force`.
 
 ## Working agreement
 

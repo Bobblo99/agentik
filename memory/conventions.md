@@ -1,5 +1,7 @@
 # Project Conventions
 
+> **Memory type: procedural** (how this project does things). See `docs/memory-model.md`.
+>
 > Project-specific patterns that emerged over time and are now binding.
 > One entry per pattern: WHAT + one-line WHY. Agents: read before tasks,
 > append when a new pattern is agreed (memory protocol in AGENTS.md).

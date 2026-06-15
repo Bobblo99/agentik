@@ -21,9 +21,12 @@ Set `false` in `framework.config.json` and move to `.framework/disabled/`
 - skills: frontend-design, react-component, api-route, db-migration
 
 ## Gate scripts
-Map the three gates to whatever the stack uses — examples:
+The `create-agentik` CLI auto-detects your stack (Python/Rust/Go/JS) and
+proposes the right gate commands — confirm or override. Map the three gates to
+whatever the stack uses — examples:
 - Python: typecheck `mypy .` · lint `ruff check .` · test `pytest`
 - Rust: typecheck `cargo check` · lint `cargo clippy -- -D warnings` · test `cargo test`
+- Go: typecheck `go build ./...` · lint `go vet ./...` · test `go test ./...`
 - TS lib: `tsc --noEmit` · `eslint .` · `vitest run`
 For non-pnpm stacks, either keep a minimal package.json as the gate runner
 or edit scripts/verify.sh to call the commands directly — record the choice

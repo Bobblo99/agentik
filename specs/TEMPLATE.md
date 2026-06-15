@@ -11,7 +11,9 @@ what is explicitly OUT of scope.>
 
 ## Affected files / modules
 
-<Verified list — every path below was listed/opened, not guessed.>
+<Verified list — every path below was listed/opened, not guessed. For new UI,
+decide the folder layout up front (web profiles: folder-per-component, feature
+vs. shared `components/` vs. `server/` — see rules/react-nextjs.md).>
 - `path/to/file.ts` — <what changes>
 - `path/to/new-file.ts` — NEW
 

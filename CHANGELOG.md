@@ -31,6 +31,10 @@ this project aims to follow [Semantic Versioning](https://semver.org/).
   it with reasons, and lets you confirm or override. It wires the detected gate
   scripts and adapts `verify.sh` to your package manager, so `/init-foundation`
   has less to do.
+- **Broader detection**: identifies language (Node/Python/Rust/Go), monorepo
+  tool (pnpm-workspaces/turbo/lerna/nx/npm), and Next router style; non-JS
+  projects map to the generic profile with stack-correct gate proposals
+  (Python ruff/mypy/pytest, Rust/Go toolchains) surfaced for wiring.
 - CLI production hardening: `--version`, `--dry-run` (preview `add` changes
   without writing), a dirty-working-tree warning before `add`, a Node `>=18`
   guard, npm metadata + `cli/LICENSE`, README badges + positioning, a `vhs`
