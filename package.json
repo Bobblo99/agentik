@@ -1,6 +1,6 @@
 {
   "name": "agentik",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Reusable foundation template for agentic coding with Claude Code, Codex and other AGENTS.md-compatible tools.",
   "license": "MIT",
   "author": "Patrick Ehmann",
