@@ -10,8 +10,8 @@
 
 import { parseArgs } from 'node:util';
 import { basename, resolve } from 'node:path';
-import { readFileSync } from 'node:fs';
-import { pathToFileURL } from 'node:url';
+import { readFileSync, realpathSync } from 'node:fs';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { scaffold } from './lib/scaffold.js';
 import { addInto } from './lib/overlay.js';
@@ -452,9 +452,17 @@ async function main() {
   else await runInteractive({ values, dir });
 }
 
+export function isCliEntry(argvPath = process.argv[1], moduleUrl = import.meta.url) {
+  if (!argvPath) return false;
+  try {
+    return realpathSync(argvPath) === realpathSync(fileURLToPath(moduleUrl));
+  } catch {
+    return moduleUrl === pathToFileURL(argvPath).href;
+  }
+}
+
 // Only run when executed as the CLI entry — lets tests import helpers safely.
-const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
-if (isMain) {
+if (isCliEntry()) {
   main().catch((err) => {
     console.error(String(err?.message || err));
     process.exit(1);

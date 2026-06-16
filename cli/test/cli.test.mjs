@@ -4,17 +4,17 @@
 // Run: npm test (in cli/), or: node test/cli.test.mjs
 
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, readdir, writeFile, rm } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, writeFile, rm, symlink } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { scaffold } from '../lib/scaffold.js';
 import { addInto } from '../lib/overlay.js';
 import { updateInto } from '../lib/update.js';
 import { detect, detectProfile } from '../lib/detect.js';
-import { nodeMajorOk } from '../index.js';
+import { isCliEntry, nodeMajorOk } from '../index.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = join(here, '..', '..');
@@ -229,6 +229,17 @@ await test('cli entry: --version and --help route correctly', async () => {
   const cliPackage = JSON.parse(await readFile(join(here, '..', 'package.json'), 'utf8'));
   assert.equal(cliPackage.name, 'create-agentik');
   assert.equal(cliPackage.bin['create-agentik'], 'index.js');
+});
+
+await test('cli entry: detects npm bin symlink as main', async (dir) => {
+  const link = join(dir, 'create-agentik');
+  try {
+    await symlink(INDEX, link);
+  } catch (error) {
+    if (['EPERM', 'EACCES', 'ENOTSUP'].includes(error.code)) return;
+    throw error;
+  }
+  assert.equal(isCliEntry(link, pathToFileURL(INDEX).href), true);
 });
 
 await test('cli entry: greenfield scaffold via subprocess', async (dir) => {
