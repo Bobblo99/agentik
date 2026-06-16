@@ -50,9 +50,14 @@ targets, no overflow, build green). Added a **/docs area** — own routes +
 sidebar, 6 core pages (Overview, Quickstart, How it works, Agents & skills,
 Memory model, Rules & gates) in SCSS Modules + folder-per-component (DocsSidebar);
 build green (6 static docs routes), active-state + responsive verified; content
-grounded in the real framework material. Remaining: hosting/domain (metadataBase =
-agentik.dev — confirm ownership + real OG image), finish the marketing-page
-SCSS-module split (Phase 2 in progress), + move `website/` to its own repo.
+grounded in the real framework material. **Marketing page split into
+folder-per-component + SCSS Modules**: tokens.scss extracted; Hero, ProblemStrip,
+SystemSection, SiteHeader, SiteFooter, CopyCommand have colocated `*.module.scss`;
+globals.scss is now the shared design-system layer only (**1067 → 588 lines**).
+Pixel-identical verified at 640 + 1280. Remaining: hosting/domain (metadataBase =
+agentik.dev — confirm ownership + real OG image); optional: extract a shared
+`SectionHeading` component to also modularize Architecture/OpenSource/FinalCta
+(low value); move `website/` to its own repo.
 Preview locally: `.claude/launch.json` has a `website` config (excluded from the
 adopter snapshot via build-template DENY_LEAF).
 
