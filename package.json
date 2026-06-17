@@ -18,10 +18,10 @@
     "agentic-coding"
   ],
   "scripts": {
-    "verify": "bash scripts/verify.sh",
+    "verify": "pnpm check:framework && npm --prefix cli run check && npm --prefix cli test",
     "check:framework": "bash scripts/check-framework.sh",
-    "typecheck": "echo '[stub] init-foundation replaces this with e.g. tsc --noEmit'",
-    "lint": "echo '[stub] init-foundation replaces this with e.g. eslint .'",
-    "test": "echo '[stub] init-foundation replaces this with e.g. vitest run'"
+    "typecheck": "npm --prefix cli run typecheck",
+    "lint": "npm --prefix cli run lint",
+    "test": "npm --prefix cli test"
   }
 }

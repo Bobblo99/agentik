@@ -96,10 +96,24 @@ for (const entry of await readdir(join(dest, 'specs'))) {
 // All-active config, no profile.
 const cfgPath = join(dest, 'framework.config.json');
 const cfg = JSON.parse(await readFile(cfgPath, 'utf8'));
+cfg.layout = 'classic';
 cfg.profile = null;
 for (const k of Object.keys(cfg.rules)) cfg.rules[k] = true;
 for (const k of Object.keys(cfg.skills)) cfg.skills[k] = true;
 await writeFile(cfgPath, JSON.stringify(cfg, null, 2) + '\n');
+
+// The repository dogfoods real gates, but adopter templates start with stubs
+// until init-foundation wires project-specific commands.
+const pkgPath = join(dest, 'package.json');
+const pkg = JSON.parse(await readFile(pkgPath, 'utf8'));
+pkg.scripts = {
+  verify: 'bash scripts/verify.sh',
+  'check:framework': 'bash scripts/check-framework.sh',
+  typecheck: "echo '[stub] init-foundation replaces this with e.g. tsc --noEmit'",
+  lint: "echo '[stub] init-foundation replaces this with e.g. eslint .'",
+  test: "echo '[stub] init-foundation replaces this with e.g. vitest run'",
+};
+await writeFile(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 
 // Uninitialized profile marker.
 await patchFile(

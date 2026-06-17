@@ -10,6 +10,14 @@ this project aims to follow [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- **Compact layout**: new CLI installs can keep framework internals under
+  `.agentik/` while leaving only small root bridge files (`AGENTS.md`,
+  `CLAUDE.md`) for agent discovery. `--layout classic` remains available for
+  the old expanded layout.
+- **Classic → compact migration**: `npm create agentik@latest update -- --layout compact`
+  moves existing classic installs into `.agentik/` with collision checks before
+  moving files, preserving project memory, specs, custom rules/skills, package
+  scripts, config, and application code.
 - **`update` command** (`npm create agentik update`): refreshes
   framework-owned rules, core skills, commands, profiles, scripts, and docs in
   an adopted project while preserving memory, specs, custom rules/skills,

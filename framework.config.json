@@ -1,5 +1,6 @@
 {
   "//": "Active-set settings for Agentik. Source of truth for which rules/skills are live. Manage with the `configure` skill (/configure): switch-profile, enable, disable, status. Disabled modules are parked in .framework/disabled/ (never read by agents) — switching is lossless. Locked-core entries must stay true. rules/custom/ is always active and not listed here.",
+  "layout": "classic",
   "profile": null,
   "rules": {
     "00-verification": true,

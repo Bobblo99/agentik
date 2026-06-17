@@ -50,8 +50,11 @@ async function test(label, fn) {
 }
 
 const cfg = async (dir) => JSON.parse(await readFile(join(dir, 'framework.config.json'), 'utf8'));
+const compactCfg = async (dir) =>
+  JSON.parse(await readFile(join(dir, '.agentik', 'framework.config.json'), 'utf8'));
 const active = (dir, p) => existsSync(join(dir, p));
 const parked = (dir, p) => existsSync(join(dir, '.framework/disabled', p));
+const compactParked = (dir, p) => existsSync(join(dir, '.agentik/disabled', p));
 
 function assertConsistent(dir) {
   // Reuse the framework's own consistency checker against the scaffolded repo.
@@ -114,6 +117,37 @@ await test('fullstack: parks nothing, all active', async (dir) => {
   assertConsistent(dir);
 });
 
+await test('compact scaffold: keeps framework internals under .agentik', async (dir) => {
+  const r = await scaffold({
+    targetDir: dir,
+    profile: 'generic',
+    name: 'Compact',
+    git: false,
+    layout: 'compact',
+  });
+  assert.ok(active(dir, 'AGENTS.md'), 'root bridge AGENTS.md kept');
+  assert.ok(active(dir, 'CLAUDE.md'), 'root bridge CLAUDE.md kept');
+  assert.ok(active(dir, '.agentik/framework.config.json'), 'compact config written');
+  assert.ok(active(dir, '.agentik/rules/typescript.md'), 'rules moved under .agentik');
+  assert.ok(active(dir, '.agentik/memory/CONTEXT.md'), 'memory moved under .agentik');
+  assert.ok(active(dir, '.agentik/profiles/generic/profile.md'), 'profiles moved under .agentik');
+  assert.ok(active(dir, '.agentik/specs/TEMPLATE.md'), 'specs moved under .agentik');
+  assert.ok(active(dir, '.agentik/docs/adopting.md'), 'docs moved under .agentik');
+  assert.ok(!active(dir, 'rules'), 'no root rules dir');
+  assert.ok(!active(dir, 'memory'), 'no root memory dir');
+  assert.ok(!active(dir, 'profiles'), 'no root profiles dir');
+  assert.ok(!active(dir, 'specs'), 'no root specs dir');
+  assert.ok(!active(dir, 'docs'), 'no root docs dir');
+  assert.ok(!active(dir, '.framework'), 'no root .framework dir');
+  assert.ok(compactParked(dir, 'rules/react-nextjs.md'), 'disabled rule parked compactly');
+  assert.ok(r.disabledRules.includes('react-nextjs'));
+  const c = await compactCfg(dir);
+  assert.equal(c.layout, 'compact');
+  assert.equal(c.profile, 'generic');
+  assert.match(await readFile(join(dir, 'AGENTS.md'), 'utf8'), /\.agentik\/AGENTS\.md/);
+  assertConsistent(dir);
+});
+
 await test('refuses non-empty dir without --force', async (dir) => {
   await scaffold({ targetDir: dir, profile: 'fullstack', name: 'X', git: false });
   await assert.rejects(
@@ -162,6 +196,28 @@ await test('add: code untouched + framework added + scripts merged + consistent'
 
   // profile applied + consistent
   assert.ok(parked(dir, 'rules/api-design.md'));
+  assertConsistent(dir);
+});
+
+await test('compact add: code untouched + framework internals under .agentik', async (dir) => {
+  await fakeProject(dir, { next: '^15.0.0' });
+  const appBefore = await readFile(join(dir, 'src/app.ts'), 'utf8');
+  const readmeBefore = await readFile(join(dir, 'README.md'), 'utf8');
+
+  const r = await addInto({ targetDir: dir, layout: 'compact' });
+
+  assert.equal(r.layout, 'compact');
+  assert.equal(await readFile(join(dir, 'src/app.ts'), 'utf8'), appBefore);
+  assert.equal(await readFile(join(dir, 'README.md'), 'utf8'), readmeBefore);
+  assert.ok(active(dir, 'AGENTS.md'), 'root bridge exists');
+  assert.ok(active(dir, '.agentik/framework.config.json'));
+  assert.ok(active(dir, '.agentik/rules/typescript.md'));
+  assert.ok(active(dir, '.agentik/claude/skills/configure/SKILL.md'));
+  assert.ok(!active(dir, 'rules'), 'no root rules dir');
+  const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
+  assert.equal(pkg.scripts.test, 'jest', 'existing test script untouched');
+  assert.equal(pkg.scripts.verify, 'bash .agentik/scripts/verify.sh');
+  assert.equal(pkg.scripts['check:framework'], 'bash .agentik/scripts/check-framework.sh');
   assertConsistent(dir);
 });
 
@@ -245,7 +301,8 @@ await test('cli entry: detects npm bin symlink as main', async (dir) => {
 await test('cli entry: greenfield scaffold via subprocess', async (dir) => {
   execFileSync('node', [INDEX, join(dir, 'app'), '--profile', 'generic', '--name', 'X', '--yes', '--no-git']);
   assert.ok(existsSync(join(dir, 'app', 'AGENTS.md')));
-  assert.ok(existsSync(join(dir, 'app', 'framework.config.json')));
+  assert.ok(existsSync(join(dir, 'app', '.agentik', 'framework.config.json')));
+  assert.ok(!existsSync(join(dir, 'app', 'rules')));
 });
 
 await test('cli entry: add --dry-run via subprocess writes nothing', async (dir) => {
@@ -326,6 +383,51 @@ await test('update: refreshes framework files and preserves project-owned state'
   assert.equal(await readFile(join(dir, 'README.md'), 'utf8'), readmeBefore);
   assert.equal(await readFile(join(dir, 'src', 'app.ts'), 'utf8'), appBefore);
   assertConsistent(dir);
+});
+
+await test('update --layout compact: migrates classic project and preserves project-owned state', async (dir) => {
+  await fakeProject(dir, {});
+  await addInto({ targetDir: dir, profile: 'generic' });
+  await writeFile(join(dir, 'memory', 'CONTEXT.md'), 'project memory\n');
+  await writeFile(join(dir, 'specs', 'project-spec.md'), 'project spec\n');
+  await writeFile(join(dir, 'rules', 'custom', 'billing.md'), 'project rule\n');
+  await mkdir(join(dir, '.claude', 'skills', 'project-skill'), { recursive: true });
+  await writeFile(join(dir, '.claude', 'skills', 'project-skill', 'SKILL.md'), 'project skill\n');
+
+  const r = await updateInto({ targetDir: dir, layout: 'compact' });
+
+  assert.equal(r.migrated, true);
+  assert.equal(r.layout, 'compact');
+  assert.ok(active(dir, 'AGENTS.md'), 'root bridge remains');
+  assert.ok(active(dir, '.agentik/AGENTS.md'), 'full AGENTS moved under .agentik');
+  assert.ok(active(dir, '.agentik/framework.config.json'));
+  assert.ok(!active(dir, 'framework.config.json'));
+  assert.ok(!active(dir, 'rules'));
+  assert.ok(!active(dir, 'memory'));
+  assert.ok(!active(dir, 'specs'));
+  assert.ok(!active(dir, '.framework'));
+  assert.equal(await readFile(join(dir, '.agentik/memory/CONTEXT.md'), 'utf8'), 'project memory\n');
+  assert.equal(await readFile(join(dir, '.agentik/specs/project-spec.md'), 'utf8'), 'project spec\n');
+  assert.equal(await readFile(join(dir, '.agentik/rules/custom/billing.md'), 'utf8'), 'project rule\n');
+  assert.equal(
+    await readFile(join(dir, '.agentik/claude/skills/project-skill/SKILL.md'), 'utf8'),
+    'project skill\n',
+  );
+  const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
+  assert.equal(pkg.scripts.verify, 'bash .agentik/scripts/verify.sh');
+  assert.equal(pkg.scripts['check:framework'], 'bash .agentik/scripts/check-framework.sh');
+  assertConsistent(dir);
+});
+
+await test('update --layout compact: refuses unsafe .agentik collision', async (dir) => {
+  await fakeProject(dir, {});
+  await addInto({ targetDir: dir, profile: 'generic' });
+  await mkdir(join(dir, '.agentik'), { recursive: true });
+  await writeFile(join(dir, '.agentik', 'existing.txt'), 'collision\n');
+
+  await assert.rejects(() => updateInto({ targetDir: dir, layout: 'compact' }), /\.agentik\/ already exists/);
+  assert.ok(active(dir, 'rules'), 'classic source folders remain after failed migration');
+  assert.ok(active(dir, 'framework.config.json'), 'classic config remains after failed migration');
 });
 
 await test('update: preserves the project package-manager runner', async (dir) => {

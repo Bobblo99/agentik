@@ -47,7 +47,7 @@ npm create agentik@latest add
 Die CLI erkennt bei bestehenden Projekten Stack, Paketmanager und vorhandene
 Quality-Gates. Das gewählte **Profil** (`web-frontend`, `fullstack`, `generic`)
 aktiviert die passenden Rules und Skills und parkt den Rest reversibel in
-`.framework/disabled/`. Danach:
+`.agentik/disabled/`. Danach:
 
 ```
 /write-spec User-Login bauen      # Agent plant, du gibst frei
@@ -66,24 +66,32 @@ Projektwissen oder eigene Erweiterungen zu überschreiben:
 ```bash
 npm create agentik@latest update -- --dry-run
 npm create agentik@latest update
+npm create agentik@latest update -- --layout compact  # alte Installationen umziehen
 ```
 
-Erhalten bleiben unter anderem `memory/`, `specs/`, `rules/custom/`, eigene
-Skills, `framework.config.json`, package.json und der Anwendungscode.
+Erhalten bleiben unter anderem Memory, Specs, `rules/custom/`, eigene Skills,
+Konfiguration, package.json und der Anwendungscode.
 
 ## Aufbau
 
+Neue CLI-Installationen nutzen das kompakte Layout. `AGENTS.md` bleibt im
+Root, weil Agenten es dort automatisch finden; die Datei ist nur ein kleiner
+Verweis auf die eigentlichen Framework-Dateien.
+
 ```
-AGENTS.md            Single Source of Truth (CLAUDE.md verweist hierauf)
-framework.config.json aktive Rules/Skills und aktuelles Profil
-.claude/skills/      How-to-Playbooks, vom Agenten bei Bedarf geladen
-.claude/commands/    /init-foundation /configure /customize /write-spec /execute-spec
-rules/               verbindliche Standards (+ rules/custom/ für dein Projekt)
-specs/               eine Datei pro Task: Plan, Test-Cases, Abnahme, archive/
-memory/              CONTEXT.md · domain.md · decisions/ · conventions.md · glossary.md
-profiles/            web-frontend / fullstack / generic — Modul-Manifeste
-scripts/             Quality-Gates und Framework-Integritätsprüfung
-docs/                Orchestrierung, MCP-Leitfaden, Adoptions-Anleitung
+AGENTS.md              Root-Bridge für AGENTS.md-kompatible Tools
+CLAUDE.md              Root-Bridge für Claude Code
+.agentik/AGENTS.md     Single Source of Truth
+.agentik/framework.config.json
+.agentik/claude/       Commands, Settings und Skills
+.agentik/cursor/       Cursor-Regelspiegel
+.agentik/rules/        verbindliche Standards (+ rules/custom/)
+.agentik/disabled/     geparkte Module
+.agentik/specs/        Task-Specs und Archiv
+.agentik/memory/       CONTEXT.md · domain.md · decisions/ · conventions.md · glossary.md
+.agentik/profiles/     web-frontend / fullstack / generic
+.agentik/scripts/      Quality-Gates und Framework-Check
+.agentik/docs/         Orchestrierung, MCP-Leitfaden, Adoption
 ```
 
 ## Designprinzipien

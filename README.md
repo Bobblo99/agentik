@@ -13,6 +13,7 @@ Works with Claude Code, Codex, Cursor, and any [AGENTS.md](https://agents.md) to
 npm create agentik@latest my-app        # new project
 npm create agentik@latest add           # …or add to an existing one
 npm create agentik@latest update        # refresh framework-owned files later
+npm create agentik@latest update -- --layout compact  # migrate old installs
 ```
 
 🇩🇪 Deutsche Version: [README.de.md](README.de.md)
@@ -49,7 +50,7 @@ claude               # or Codex, Cursor, …
 ```
 
 The scaffolder does the structural work for you (template, profile,
-`framework.config.json`, git). `/init-foundation` then handles the judgment
+`.agentik/framework.config.json`, git). `/init-foundation` then handles the judgment
 parts: wiring real gate commands and capturing your business domain.
 
 **Already have a project?** Add the framework without touching your code:
@@ -63,9 +64,9 @@ Prefer no install step? `npx degit Bobblo99/agentik my-app` still works
 (then run `/init-foundation`).
 
 The chosen **profile** (`web-frontend`, `fullstack`, `generic`) keeps the
-matching rules/skills and **parks the rest** in `.framework/disabled/` (nothing
+matching rules/skills and **parks the rest** in `.agentik/disabled/` (nothing
 deleted). Switch profile or toggle modules anytime with `/configure` — the
-active set lives in `framework.config.json`. Then:
+active set lives in `.agentik/framework.config.json`. Then:
 
 ```
 /write-spec add user login        # agent plans, you approve
@@ -83,27 +84,40 @@ After adopting the framework, update it from any project root:
 ```bash
 npm create agentik@latest update -- --dry-run
 npm create agentik@latest update
+npm create agentik@latest update -- --layout compact  # migrate classic installs
 ```
 
 `update` refreshes framework rules, core skills, commands, profiles, scripts,
-and docs while preserving `memory/`, `specs/`, `rules/custom/`, custom skills,
-`framework.config.json`, package.json, and application code. Disabled modules
-stay parked, and the project's package-manager adaptation stays intact.
+and docs while preserving memory, specs, custom rules, custom skills,
+configuration, package.json, and application code. Disabled modules stay
+parked, and the project's package-manager adaptation stays intact.
 
 ## Layout
 
+New CLI installs use the compact layout so the project root stays readable.
+`AGENTS.md` remains in the root because agents discover it there; it is only a
+small bridge to the real framework files.
+
 ```
-AGENTS.md             single source of truth (CLAUDE.md points here)
-framework.config.json active rules/skills + profile (manage via /configure)
-.claude/skills/       how-to playbooks the agent loads on demand
-.claude/commands/     /init-foundation /configure /customize /write-spec /execute-spec /…
-rules/                binding standards (+ rules/custom/ for your domain rules)
-.framework/disabled/  parked (disabled) modules — never read, brought back by /configure
-specs/                one file per task: plan, test cases, acceptance, archive/
-memory/               CONTEXT.md · domain.md · decisions/ · conventions.md · glossary.md
-profiles/             web-frontend / fullstack / generic — module manifests
-scripts/              verify.sh (gate) · check-framework.sh (integrity)
-docs/                 orchestration, MCP guidance, adoption guide
+AGENTS.md              root bridge for AGENTS.md-compatible tools
+CLAUDE.md              root bridge for Claude Code
+.agentik/AGENTS.md     single source of truth
+.agentik/framework.config.json
+.agentik/claude/       commands, settings, and skills
+.agentik/cursor/       Cursor rule mirrors
+.agentik/rules/        binding standards (+ rules/custom/ for your domain)
+.agentik/disabled/     parked modules — never read, brought back by /configure
+.agentik/specs/        one file per task: plan, test cases, acceptance, archive/
+.agentik/memory/       CONTEXT.md · domain.md · decisions/ · conventions.md · glossary.md
+.agentik/profiles/     web-frontend / fullstack / generic
+.agentik/scripts/      verify.sh · check-framework.sh
+.agentik/docs/         orchestration, MCP guidance, adoption guide
+```
+
+Older classic installs remain supported. Move one to compact layout with:
+
+```bash
+npm create agentik@latest update -- --layout compact
 ```
 
 ## Design principles

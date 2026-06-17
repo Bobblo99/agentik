@@ -18,6 +18,7 @@ import { addInto } from './lib/overlay.js';
 import { updateInto } from './lib/update.js';
 import { detect, pmExec } from './lib/detect.js';
 import { PROFILE_NAMES, PROFILES } from './lib/profiles.js';
+import { normalizeLayout } from './lib/layout.js';
 
 export const MIN_NODE = 18;
 export function nodeMajorOk(v = process.versions.node) {
@@ -44,14 +45,17 @@ New project options:
   --name <name>      project name (default: target directory name)
   --no-git           skip \`git init\`
   --force            scaffold into a non-empty directory
+  --layout <name>    compact | classic   (default: compact)
 
 add (existing project) — copies only framework files, never touches your code:
   --profile <name>   default: auto-detected from your dependencies
   --dry-run          show what would change; write nothing
   --force            overwrite framework files that already exist
+  --layout <name>    compact | classic   (default: compact)
 
 update (adopted project) — refreshes framework-owned files, preserves your work:
   --dry-run          show what would change; write nothing
+  --layout compact   migrate a classic install into .agentik/ compact layout
 
 Common:
   -y, --yes          non-interactive; use flags + defaults (no prompts)
@@ -73,6 +77,7 @@ function parse() {
     options: {
       profile: { type: 'string' },
       name: { type: 'string' },
+      layout: { type: 'string' },
       force: { type: 'boolean', default: false },
       'dry-run': { type: 'boolean', default: false },
       yes: { type: 'boolean', short: 'y', default: false },
@@ -95,6 +100,7 @@ function finalName(name, dir) {
 async function runNonInteractive({ values, dir }) {
   const targetDir = dir || '.';
   const profile = values.profile || 'web-frontend';
+  const layout = normalizeLayout(values.layout, 'compact');
   if (!PROFILES[profile]) {
     console.error(`Unknown profile "${profile}". Choose: ${PROFILE_NAMES.join(', ')}`);
     process.exit(1);
@@ -105,6 +111,7 @@ async function runNonInteractive({ values, dir }) {
     name: finalName(values.name, targetDir),
     git: values.git,
     force: values.force,
+    layout,
     log: (m) => console.log('  ' + m),
   });
   console.log(
@@ -151,6 +158,7 @@ async function runInteractive({ values, dir }) {
   const name =
     values.name ??
     cancel(await p.text({ message: 'Project name?', defaultValue: finalName(undefined, targetDir) }));
+  const layout = normalizeLayout(values.layout, 'compact');
   const git =
     values.git === false
       ? false
@@ -159,7 +167,15 @@ async function runInteractive({ values, dir }) {
   const s = p.spinner();
   s.start('Scaffolding');
   try {
-    const result = await scaffold({ targetDir, profile, name, git, force: values.force, log: () => {} });
+    const result = await scaffold({
+      targetDir,
+      profile,
+      name,
+      git,
+      force: values.force,
+      layout,
+      log: () => {},
+    });
     s.stop('Scaffolded');
     const parked =
       result.disabledRules.length || result.disabledSkills.length
@@ -232,7 +248,7 @@ function proposalSummary(d) {
 function verifyHint(r) {
   return r.language === 'node'
     ? `${pmExec(r.packageManager)} verify`
-    : 'bash scripts/verify.sh (after wiring gates)';
+    : `bash ${r.layout === 'compact' ? '.agentik/scripts' : 'scripts'}/verify.sh (after wiring gates)`;
 }
 
 async function loadClack() {
@@ -261,6 +277,7 @@ async function runAddNonInteractive({ values, dir }) {
     detected: proposal,
     force: values.force,
     dryRun,
+    layout: normalizeLayout(values.layout, 'compact'),
     log: dryRun ? () => {} : (m) => console.log('  ' + m),
   });
   if (dryRun) {
@@ -310,7 +327,14 @@ async function runAddInteractive({ values, dir }) {
   }
 
   if (dryRun) {
-    const r = await addInto({ targetDir, profile, detected: proposal, force: values.force, dryRun: true });
+    const r = await addInto({
+      targetDir,
+      profile,
+      detected: proposal,
+      force: values.force,
+      dryRun: true,
+      layout: normalizeLayout(values.layout, 'compact'),
+    });
     p.note(dryRunPlan(r), 'Dry run');
     p.outro('Nothing written. Re-run without --dry-run to apply.');
     return;
@@ -333,7 +357,14 @@ async function runAddInteractive({ values, dir }) {
   const s = p.spinner();
   s.start('Adding framework');
   try {
-    const r = await addInto({ targetDir, profile, detected: proposal, force: values.force, log: () => {} });
+    const r = await addInto({
+      targetDir,
+      profile,
+      detected: proposal,
+      force: values.force,
+      layout: normalizeLayout(values.layout, 'compact'),
+      log: () => {},
+    });
     s.stop('Added');
     const summary = r.alreadyInit
       ? 'Already initialized — filled missing files only.'
@@ -370,6 +401,7 @@ async function runUpdateNonInteractive({ values, dir }) {
   const result = await updateInto({
     targetDir,
     dryRun,
+    layout: values.layout,
     log: dryRun ? () => {} : (message) => console.log('  ' + message),
   });
   console.log('\n' + updatePlan(result));
@@ -406,7 +438,7 @@ async function runUpdateInteractive({ values, dir }) {
   const spinner = p.spinner();
   spinner.start(dryRun ? 'Planning update' : 'Updating framework');
   try {
-    const result = await updateInto({ targetDir, dryRun });
+    const result = await updateInto({ targetDir, dryRun, layout: values.layout });
     spinner.stop(dryRun ? 'Plan ready' : 'Framework updated');
     p.note(updatePlan(result), dryRun ? 'Dry run' : 'Update summary');
     p.outro(

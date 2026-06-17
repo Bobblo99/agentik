@@ -13,23 +13,40 @@
 # Bash + (optional) python3 for the JSON consistency check.
 
 set -u
-cd "$(dirname "$0")/.." || exit 2
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ "$(basename "$(dirname "$SCRIPT_DIR")")" = ".agentik" ]; then
+  cd "$SCRIPT_DIR/../.." || exit 2
+else
+  cd "$SCRIPT_DIR/.." || exit 2
+fi
 FAILED=0
+
+if [ -f ".agentik/framework.config.json" ]; then
+  RULES_DIR=".agentik/rules"
+  CURSOR_RULES_DIR=".agentik/cursor/rules"
+  MEMORY_CONTEXT=".agentik/memory/CONTEXT.md"
+else
+  RULES_DIR="rules"
+  CURSOR_RULES_DIR=".cursor/rules"
+  MEMORY_CONTEXT="memory/CONTEXT.md"
+fi
 
 fail() { echo "  ✗ $1"; FAILED=1; }
 ok()   { echo "  ✓ $1"; }
 
 echo "── check: cursor mirror parity ───────────────"
-for rule in rules/*.md; do
+for rule in "$RULES_DIR"/*.md; do
+  [ -e "$rule" ] || continue
   base="$(basename "$rule" .md)"
-  if [ ! -f ".cursor/rules/$base.mdc" ]; then
-    fail "rules/$base.md has no .cursor/rules/$base.mdc mirror"
+  if [ ! -f "$CURSOR_RULES_DIR/$base.mdc" ]; then
+    fail "$RULES_DIR/$base.md has no $CURSOR_RULES_DIR/$base.mdc mirror"
   fi
 done
-for mirror in .cursor/rules/*.mdc; do
+for mirror in "$CURSOR_RULES_DIR"/*.mdc; do
+  [ -e "$mirror" ] || continue
   base="$(basename "$mirror" .mdc)"
-  if [ ! -f "rules/$base.md" ]; then
-    fail ".cursor/rules/$base.mdc mirrors a missing rules/$base.md"
+  if [ ! -f "$RULES_DIR/$base.md" ]; then
+    fail "$CURSOR_RULES_DIR/$base.mdc mirrors a missing $RULES_DIR/$base.md"
   fi
 done
 [ "$FAILED" -eq 0 ] && ok "every rule and mirror is paired"
@@ -37,20 +54,20 @@ done
 echo ""
 echo "── check: custom (project-owned) rule mirror parity ─"
 CUSTOM_FAIL=0
-for rule in rules/custom/*.md; do
+for rule in "$RULES_DIR"/custom/*.md; do
   [ -e "$rule" ] || continue
   base="$(basename "$rule" .md)"
   [ "$base" = "README" ] && continue
-  if [ ! -f ".cursor/rules/custom/$base.mdc" ]; then
-    fail "rules/custom/$base.md has no .cursor/rules/custom/$base.mdc mirror"
+  if [ ! -f "$CURSOR_RULES_DIR/custom/$base.mdc" ]; then
+    fail "$RULES_DIR/custom/$base.md has no $CURSOR_RULES_DIR/custom/$base.mdc mirror"
     CUSTOM_FAIL=1
   fi
 done
-for mirror in .cursor/rules/custom/*.mdc; do
+for mirror in "$CURSOR_RULES_DIR"/custom/*.mdc; do
   [ -e "$mirror" ] || continue
   base="$(basename "$mirror" .mdc)"
-  if [ ! -f "rules/custom/$base.md" ]; then
-    fail ".cursor/rules/custom/$base.mdc mirrors a missing rules/custom/$base.md"
+  if [ ! -f "$RULES_DIR/custom/$base.md" ]; then
+    fail "$CURSOR_RULES_DIR/custom/$base.mdc mirrors a missing $RULES_DIR/custom/$base.md"
     CUSTOM_FAIL=1
   fi
 done
@@ -58,12 +75,12 @@ done
 
 echo ""
 echo "── check: framework.config.json ↔ filesystem ─"
-if [ ! -f framework.config.json ]; then
+if [ ! -f framework.config.json ] && [ ! -f .agentik/framework.config.json ]; then
   echo "  ⚠ framework.config.json not found — skipping (run init-foundation)."
 elif ! command -v python3 >/dev/null 2>&1; then
   echo "  ⚠ python3 not found — skipping the config consistency check."
 else
-  if python3 scripts/_check_config.py; then
+  if python3 "$SCRIPT_DIR/_check_config.py"; then
     ok "config matches active rules/skills; locked core intact"
   else
     FAILED=1
@@ -82,7 +99,7 @@ check_budget() {
   fi
 }
 check_budget AGENTS.md 160
-check_budget memory/CONTEXT.md 80
+check_budget "$MEMORY_CONTEXT" 80
 
 echo ""
 if [ "$FAILED" -ne 0 ]; then

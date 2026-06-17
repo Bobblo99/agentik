@@ -9,6 +9,7 @@ import { join, dirname } from 'node:path';
 import { applyProfile, TEMPLATE_DIR } from './scaffold.js';
 import { PROFILES, PROFILE_NAMES } from './profiles.js';
 import { detect, detectProfile, pmRunner } from './detect.js';
+import { displayLayoutPath, normalizeLayout, paths, writeCompactBridges } from './layout.js';
 
 // Re-exported for the CLI/tests (detection lives in detect.js now).
 export { detectProfile, detect };
@@ -56,7 +57,10 @@ const STUB = (cmd) => `echo '[stub] init-foundation replaces this with e.g. ${cm
 // Add the gate scripts to an existing package.json. Uses REAL commands the
 // detector inferred (vitest/jest, eslint, tsc) and falls back to a stub.
 // Never clobbers a script the user already defined. Returns the scripts added.
-async function mergeScripts(pkgPath, gates = {}, dryRun = false) {
+/**
+ * @param {'classic'|'compact'} [layout]
+ */
+async function mergeScripts(pkgPath, gates = {}, dryRun = false, layout = 'classic') {
   const raw = await readFile(pkgPath, 'utf8');
   const pkg = JSON.parse(raw);
   pkg.scripts = pkg.scripts || {};
@@ -68,8 +72,9 @@ async function mergeScripts(pkgPath, gates = {}, dryRun = false) {
       added.push(name);
     }
   };
-  ensure('verify', 'bash scripts/verify.sh');
-  ensure('check:framework', 'bash scripts/check-framework.sh');
+  const scriptBase = layout === 'compact' ? '.agentik/scripts' : 'scripts';
+  ensure('verify', `bash ${scriptBase}/verify.sh`);
+  ensure('check:framework', `bash ${scriptBase}/check-framework.sh`);
   ensure('typecheck', gates.typecheck || STUB('tsc --noEmit'));
   ensure('lint', gates.lint || STUB('eslint .'));
   ensure('test', gates.test || STUB('vitest run'));
@@ -83,9 +88,12 @@ async function mergeScripts(pkgPath, gates = {}, dryRun = false) {
 
 // Point verify.sh at the project's package manager (it ships pnpm-based).
 // Returns true if an adaptation is needed/applied.
-async function adaptRunner(targetDir, packageManager, dryRun = false) {
+/**
+ * @param {'classic'|'compact'} [layout]
+ */
+async function adaptRunner(targetDir, packageManager, dryRun = false, layout = 'classic') {
   if (!packageManager || packageManager === 'pnpm') return false;
-  const f = join(targetDir, 'scripts', 'verify.sh');
+  const f = join(paths(targetDir, layout).scripts, 'verify.sh');
   if (!existsSync(f)) return false;
   const text = await readFile(f, 'utf8');
   const next = text.replace(/pnpm run --if-present/g, pmRunner(packageManager));
@@ -100,12 +108,14 @@ async function adaptRunner(targetDir, packageManager, dryRun = false) {
  * @param {string} [opts.profile]   override; default from stack detection
  * @param {boolean} [opts.force]    overwrite existing files
  * @param {boolean} [opts.dryRun]   compute the plan, write nothing
+ * @param {'classic'|'compact'} [opts.layout] layout to install
  * @param {ReturnType<import('./detect.js').detect>} [opts.detected]  precomputed proposal
  * @param {string} [opts.templateDir]
  * @param {(m?: string) => void} [opts.log]
  */
 export async function addInto(opts) {
   const { targetDir, force = false, dryRun = false, templateDir = TEMPLATE_DIR, log = () => {} } = opts;
+  const layout = normalizeLayout(opts.layout);
   if (!existsSync(templateDir)) throw new Error(`Template not found at ${templateDir}. Build it first.`);
   if (!existsSync(targetDir)) throw new Error(`Target ${targetDir} does not exist.`);
 
@@ -116,7 +126,10 @@ export async function addInto(opts) {
   if (!PROFILES[profile])
     throw new Error(`Unknown profile "${profile}". Choose: ${PROFILE_NAMES.join(', ')}`);
 
-  const alreadyInit = existsSync(join(targetDir, 'framework.config.json'));
+  const p = paths(targetDir, layout);
+  const alreadyInit =
+    existsSync(join(targetDir, 'framework.config.json')) ||
+    existsSync(join(targetDir, '.agentik', 'framework.config.json'));
   /** @type {{ copied: number, skipped: string[] }} */
   const stats = { copied: 0, skipped: [] };
 
@@ -124,7 +137,8 @@ export async function addInto(opts) {
   for (const entry of OVERLAY) {
     const src = join(templateDir, entry);
     if (!existsSync(src)) continue;
-    const dest = join(targetDir, entry);
+    const destRel = displayLayoutPath(entry, layout);
+    const dest = join(targetDir, destRel);
     const isDir = topEntries.find((e) => e.name === entry)?.isDirectory();
     if (isDir) {
       await copyMerge(src, dest, force, stats, dryRun);
@@ -137,6 +151,12 @@ export async function addInto(opts) {
       }
       stats.copied++;
     }
+  }
+  if (layout === 'compact' && !dryRun) {
+    await writeCompactBridges(targetDir);
+    const cfg = JSON.parse(await readFile(p.config, 'utf8'));
+    cfg.layout = 'compact';
+    await writeFile(p.config, JSON.stringify(cfg, null, 2) + '\n');
   }
   log(
     `${dryRun ? 'would copy' : 'copied'} ${stats.copied} framework file(s); skipped ${stats.skipped.length} existing`,
@@ -158,14 +178,14 @@ export async function addInto(opts) {
       disabledSkills: PROFILES[profile].disableSkills,
     };
     if (hasPkg) {
-      scriptsAdded = await mergeScripts(pkgPath, proposal.gates, true);
-      pmAdapted = await adaptRunner(targetDir, proposal.packageManager, true);
+      scriptsAdded = await mergeScripts(pkgPath, proposal.gates, true, layout);
+      pmAdapted = await adaptRunner(targetDir, proposal.packageManager, true, layout);
     }
   } else {
     applied = await applyProfile(targetDir, profile, log);
     if (hasPkg) {
-      scriptsAdded = await mergeScripts(pkgPath, proposal.gates);
-      pmAdapted = await adaptRunner(targetDir, proposal.packageManager);
+      scriptsAdded = await mergeScripts(pkgPath, proposal.gates, false, layout);
+      pmAdapted = await adaptRunner(targetDir, proposal.packageManager, false, layout);
       if (scriptsAdded.length) log(`added package.json scripts: ${scriptsAdded.join(', ')}`);
     } else {
       const g = proposal.gates || {};
@@ -194,6 +214,7 @@ export async function addInto(opts) {
     pmAdapted,
     packageManager: proposal.packageManager,
     gates: proposal.gates,
+    layout,
     ...applied,
   };
 }

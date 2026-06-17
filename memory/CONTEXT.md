@@ -5,7 +5,7 @@
 > Living document. HARD BUDGET: 80 lines. On every update: delete completed
 > items, move decisions → ADRs, move patterns → conventions.md. This is a
 > snapshot of NOW, not a log.
-> Last updated: YYYY-MM-DD (by init-foundation)
+> Last updated: 2026-06-18 (by Codex)
 
 ## What this project is
 
@@ -13,8 +13,10 @@
 
 ## Current state
 
-<What exists and works, in short bullets. Verified, not aspirational.>
-- Template not yet initialized — run the init-foundation skill.
+- Agentik CLI supports compact layout via `--layout compact` and new CLI installs default to compact.
+- Compact layout keeps root `AGENTS.md`/`CLAUDE.md` as bridge files and moves framework internals under `.agentik/`.
+- `update --layout compact` migrates classic installs into `.agentik/` with collision checks.
+- Root `pnpm verify` now runs real repo gates; adopter templates still get stub scripts during `build-template`.
 
 ## In progress
 
@@ -24,7 +26,8 @@
 ## Next steps
 
 <Ordered, concrete.>
-1. Run init-foundation (interview, profile, gates).
+1. Bump CLI version for the compact-layout release.
+2. Publish the next `create-agentik` version after release review.
 
 ## Open questions / blockers
 

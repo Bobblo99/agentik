@@ -55,6 +55,7 @@ npm create agentik@latest my-app -- \
 # Options
 #   --profile <web-frontend|fullstack|generic>   default: web-frontend
 #   --name <name>        project name (default: directory name)
+#   --layout <compact|classic> default: compact
 #   --no-git             skip git init
 #   --force              scaffold into a non-empty directory
 #   -y, --yes            non-interactive (use flags + defaults)
@@ -70,10 +71,12 @@ cd my-existing-app
 npm create agentik@latest add        # auto-detects a profile from your deps
 ```
 
-It overlays `AGENTS.md`, the rules/skills, memory, the **full config system**
-(`framework.config.json`, `/configure`, `/customize`, profiles), merges the gate
-scripts into your `package.json` (keeping any you already have), and applies a
-profile. Re-running is safe (skips files that exist). Then run `/init-foundation`.
+It overlays a small root `AGENTS.md` bridge plus the framework internals under
+`.agentik/`: rules/skills, memory, the **full config system**
+(`.agentik/framework.config.json`, `/configure`, `/customize`, profiles),
+merges the gate scripts into your `package.json` (keeping any you already
+have), and applies a profile. Re-running is safe (skips files that exist).
+Then run `/init-foundation`.
 
 **It's smart about it.** `add` inspects your project and proposes a setup, then
 asks you to confirm:
@@ -100,12 +103,27 @@ Refresh an adopted project without losing its knowledge or customizations:
 cd my-project
 npm create agentik@latest update -- --dry-run
 npm create agentik@latest update
+npm create agentik@latest update -- --layout compact  # migrate old classic installs
 ```
 
 The command updates framework-owned rules, core skills, commands, profiles,
-scripts, and documentation. It preserves `memory/`, `specs/`, custom rules and
-skills, `framework.config.json`, package.json, README, LICENSE, environment
-files, and application code. Existing disabled modules remain parked.
+scripts, and documentation. It preserves memory, specs, custom rules and
+skills, configuration, package.json, README, LICENSE, environment files, and
+application code. Existing disabled modules remain parked.
+
+## Compact Layout
+
+New CLI installs default to compact layout:
+
+```txt
+AGENTS.md              root bridge for agent discovery
+CLAUDE.md              root bridge for Claude Code
+.agentik/              rules, skills, memory, specs, profiles, scripts, docs
+```
+
+`AGENTS.md` stays in the root intentionally because agent tools discover it
+there. The detailed framework files live in `.agentik/` so adopted repos do not
+look cluttered.
 
 After create/add: open the project with your agent and run `/init-foundation`
 (or say "init") to wire the quality gates and capture your domain.

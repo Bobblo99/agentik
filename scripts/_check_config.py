@@ -33,41 +33,63 @@ def err(msg):
     print(f"  ✗ {msg}")
 
 
-with open("framework.config.json") as f:
+config_path = "framework.config.json"
+if os.path.isfile(".agentik/framework.config.json"):
+    config_path = ".agentik/framework.config.json"
+
+with open(config_path) as f:
     cfg = json.load(f)
+
+layout = cfg.get("layout") or ("compact" if config_path.startswith(".agentik/") else "classic")
+if layout not in {"classic", "compact"}:
+    err(f"unknown layout '{layout}' in {config_path}")
+
+if layout == "compact":
+    ROOT = ".agentik"
+    RULES = ".agentik/rules"
+    CURSOR_RULES = ".agentik/cursor/rules"
+    SKILLS = ".agentik/claude/skills"
+    DISABLED = ".agentik/disabled"
+else:
+    ROOT = "."
+    RULES = "rules"
+    CURSOR_RULES = ".cursor/rules"
+    SKILLS = ".claude/skills"
+    DISABLED = ".framework/disabled"
 
 # --- Rules ---
 cfg_rules = cfg.get("rules", {})
 for name, active in cfg_rules.items():
-    live = os.path.isfile(f"rules/{name}.md")
-    parked = os.path.isfile(f".framework/disabled/rules/{name}.md")
+    live = os.path.isfile(f"{RULES}/{name}.md")
+    parked = os.path.isfile(f"{DISABLED}/rules/{name}.md")
     if name in LOCKED_RULES and not active:
         err(f"rule '{name}' is locked core and must stay active (true)")
     if active and not live:
-        err(f"rule '{name}' is true but rules/{name}.md is missing")
+        err(f"rule '{name}' is true but {RULES}/{name}.md is missing")
     if not active and live:
-        err(f"rule '{name}' is false but rules/{name}.md is still active (park it)")
+        err(f"rule '{name}' is false but {RULES}/{name}.md is still active (park it)")
     if not active and not live and not parked:
         err(f"rule '{name}' is false but found neither active nor parked")
 
 # every active rule file (excluding custom/) must be in the config
-for fn in os.listdir("rules"):
-    if fn.endswith(".md"):
-        name = fn[:-3]
-        if name not in cfg_rules:
-            err(f"rules/{fn} exists but is not listed in framework.config.json")
+if os.path.isdir(RULES):
+    for fn in os.listdir(RULES):
+        if fn.endswith(".md"):
+            name = fn[:-3]
+            if name not in cfg_rules:
+                err(f"{RULES}/{fn} exists but is not listed in {config_path}")
 
 # --- Skills ---
 cfg_skills = cfg.get("skills", {})
 for name, active in cfg_skills.items():
-    live = os.path.isfile(f".claude/skills/{name}/SKILL.md")
-    parked = os.path.isfile(f".framework/disabled/skills/{name}/SKILL.md")
+    live = os.path.isfile(f"{SKILLS}/{name}/SKILL.md")
+    parked = os.path.isfile(f"{DISABLED}/skills/{name}/SKILL.md")
     if name in LOCKED_SKILLS and not active:
         err(f"skill '{name}' is locked core and must stay active (true)")
     if active and not live:
-        err(f"skill '{name}' is true but .claude/skills/{name}/SKILL.md is missing")
+        err(f"skill '{name}' is true but {SKILLS}/{name}/SKILL.md is missing")
     if not active and live:
-        err(f"skill '{name}' is false but .claude/skills/{name}/ is still active (park it)")
+        err(f"skill '{name}' is false but {SKILLS}/{name}/ is still active (park it)")
     if not active and not live and not parked:
         err(f"skill '{name}' is false but found neither active nor parked")
 
