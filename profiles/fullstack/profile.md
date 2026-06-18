@@ -7,8 +7,8 @@ core: 00-verification, security, validation, typescript, testing, error-handling
 profile: react-nextjs, ui-ux, api-design
 
 ## Keeps (skills)
-core: write-spec, execute-spec, write-tests, code-review, debugging
-profile: frontend-design, react-component, api-route, db-migration
+core: write-spec, execute-spec, write-tests, code-review, debugging, architect
+profile: frontend-design, react-component, react-quality, api-route, db-migration
 
 ## Disable (park, not delete)
 - nothing (full set — all rules/skills active). Toggle any later via `/configure`.

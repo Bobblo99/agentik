@@ -2,12 +2,13 @@
 // preserving project memory, specs, custom rules/skills, configuration, and
 // application code.
 
-import { mkdir, readFile, readdir, writeFile, rm } from 'node:fs/promises';
+import { cp, mkdir, readFile, readdir, writeFile, rm } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, join, relative, sep } from 'node:path';
 import { TEMPLATE_DIR } from './scaffold.js';
 import { detect, pmRunner } from './detect.js';
 import {
+  COMPACT_DOC_FILES,
   configPath,
   displayLayoutPath,
   moveIfExists,
@@ -149,7 +150,20 @@ async function patchPackageScripts(targetDir, dryRun) {
   return true;
 }
 
-async function migrateClassicToCompact(targetDir, dryRun = false) {
+async function matchesTemplateDoc(targetDir, templateDir, file) {
+  const sourcePath = join(targetDir, file);
+  const templatePath = join(templateDir, file);
+  if (!existsSync(sourcePath) || !existsSync(templatePath)) return false;
+  const source = await readFile(sourcePath, 'utf8');
+  const template = await readFile(templatePath, 'utf8');
+  if (source === template) return true;
+  if (file === 'README.md') {
+    return source.replace(/^# .+$/m, '# Agentik') === template;
+  }
+  return false;
+}
+
+async function migrateClassicToCompact(targetDir, templateDir, dryRun = false) {
   if (existsSync(configPath(targetDir, 'compact'))) return { migrated: false, files: [] };
   if (!existsSync(configPath(targetDir, 'classic'))) {
     throw new Error(`Cannot migrate: classic framework.config.json is missing.`);
@@ -184,6 +198,20 @@ async function migrateClassicToCompact(targetDir, dryRun = false) {
       throw new Error(`Cannot migrate: ${destination} already exists.`);
     }
   }
+  if (
+    existsSync(join(targetDir, '.agentik/claude/skills')) &&
+    existsSync(join(targetDir, '.agentik/skills'))
+  ) {
+    throw new Error(`Cannot migrate: .agentik/skills already exists.`);
+  }
+  for (const file of COMPACT_DOC_FILES) {
+    if (
+      (await matchesTemplateDoc(targetDir, templateDir, file)) &&
+      existsSync(join(targetDir, '.agentik', file))
+    ) {
+      throw new Error(`Cannot migrate: .agentik/${file} already exists.`);
+    }
+  }
 
   const moved = [];
   if (!dryRun) await mkdir(compactRoot, { recursive: true });
@@ -191,6 +219,21 @@ async function migrateClassicToCompact(targetDir, dryRun = false) {
     if (existsSync(join(targetDir, source))) {
       moved.push(destination);
       if (!dryRun) await moveIfExists(join(targetDir, source), join(targetDir, destination));
+    }
+  }
+  if (existsSync(join(targetDir, '.agentik/claude/skills'))) {
+    moved.push('.agentik/skills');
+    if (!dryRun) {
+      await mkdir(join(targetDir, '.agentik'), { recursive: true });
+      await cp(join(targetDir, '.agentik/claude/skills'), join(targetDir, '.agentik/skills'), {
+        recursive: true,
+      });
+    }
+  }
+  for (const file of COMPACT_DOC_FILES) {
+    if (await matchesTemplateDoc(targetDir, templateDir, file)) {
+      moved.push(`.agentik/${file}`);
+      if (!dryRun) await moveIfExists(join(targetDir, file), join(targetDir, '.agentik', file));
     }
   }
   if (!dryRun) {
@@ -224,7 +267,7 @@ export async function updateInto(opts) {
   const requestedLayout = opts.layout ? normalizeLayout(opts.layout) : null;
   const migration =
     requestedLayout === 'compact'
-      ? await migrateClassicToCompact(targetDir, dryRun)
+      ? await migrateClassicToCompact(targetDir, templateDir, dryRun)
       : { migrated: false, files: [] };
 
   const config = await readConfig(targetDir);

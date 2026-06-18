@@ -76,14 +76,17 @@ Konfiguration, package.json und der Anwendungscode.
 
 Neue CLI-Installationen nutzen das kompakte Layout. `AGENTS.md` bleibt im
 Root, weil Agenten es dort automatisch finden; die Datei ist nur ein kleiner
-Verweis auf die eigentlichen Framework-Dateien.
+Verweis auf die eigentlichen Framework-Dateien. Agentiks README, Changelog,
+Contributing-Guide und Lizenz liegen bei Compact-Installationen unter
+`.agentik/`; der Root gehört dem eigentlichen Projekt.
 
 ```
 AGENTS.md              Root-Bridge für AGENTS.md-kompatible Tools
 CLAUDE.md              Root-Bridge für Claude Code
 .agentik/AGENTS.md     Single Source of Truth
 .agentik/framework.config.json
-.agentik/claude/       Commands, Settings und Skills
+.agentik/skills/       agent-neutrale Skills für Codex, Cursor, Claude, andere
+.agentik/claude/       Claude-Kompatibilität: Commands, Settings, Skill-Mirror
 .agentik/cursor/       Cursor-Regelspiegel
 .agentik/rules/        verbindliche Standards (+ rules/custom/)
 .agentik/disabled/     geparkte Module
@@ -92,6 +95,9 @@ CLAUDE.md              Root-Bridge für Claude Code
 .agentik/profiles/     web-frontend / fullstack / generic
 .agentik/scripts/      Quality-Gates und Framework-Check
 .agentik/docs/         Orchestrierung, MCP-Leitfaden, Adoption
+.agentik/README.md     Agentik-Referenz, nicht dein Projekt-README
+.agentik/CHANGELOG.md  Agentik-Changelog
+.agentik/LICENSE       Agentik-Lizenz
 ```
 
 ## Designprinzipien

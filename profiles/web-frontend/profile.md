@@ -8,8 +8,8 @@ core: 00-verification, security, validation, typescript, testing, error-handling
 profile: react-nextjs, ui-ux
 
 ## Keeps (skills)
-core: write-spec, execute-spec, write-tests, code-review, debugging
-profile: frontend-design, react-component
+core: write-spec, execute-spec, write-tests, code-review, debugging, architect
+profile: frontend-design, react-component, react-quality
 
 ## Disable (park, not delete)
 Set `false` in `framework.config.json` and move to `.framework/disabled/`

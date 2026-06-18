@@ -38,12 +38,16 @@ No mirror/check needed — these are memory, not rules.
 
 ## Mode C — Scaffold a project-only skill
 
-1. Create `.claude/skills/<name>/SKILL.md` with YAML frontmatter (`name`,
-   `description` — the description decides when it triggers, write it for that).
+1. Create `.agentik/skills/<name>/SKILL.md` in compact layout, or
+   `.claude/skills/<name>/SKILL.md` in classic layout, with YAML frontmatter
+   (`name`, `description` — the description decides when it triggers, write it
+   for that).
+   In compact layout, mirror it to `.agentik/claude/skills/<name>/SKILL.md`
+   when Claude Code compatibility is needed.
 2. Keep it a focused playbook; reference rules instead of restating them.
 3. Add it to the AGENTS.md Skills table so humans/other tools see it.
-   (Project skills are auto-discovered by Claude Code; the table is for clarity
-   and for non-Claude tools.)
+   (The `.agentik/skills` path is for all agents; Claude mirrors are
+   compatibility, not the source of truth.)
 
 ## Done when
 

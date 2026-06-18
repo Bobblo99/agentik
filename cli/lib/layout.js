@@ -3,6 +3,7 @@ import { existsSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 export const LAYOUTS = new Set(['classic', 'compact']);
+export const COMPACT_DOC_FILES = ['README.md', 'README.de.md', 'CHANGELOG.md', 'CONTRIBUTING.md', 'LICENSE'];
 
 /**
  * @param {string | undefined | null} layout
@@ -49,7 +50,8 @@ export function paths(targetDir, layout = 'classic') {
     config: join(base, 'framework.config.json'),
     rules: join(base, 'rules'),
     cursorRules: compact ? join(base, 'cursor', 'rules') : join(targetDir, '.cursor', 'rules'),
-    skills: compact ? join(base, 'claude', 'skills') : join(targetDir, '.claude', 'skills'),
+    skills: compact ? join(base, 'skills') : join(targetDir, '.claude', 'skills'),
+    claudeSkills: compact ? join(base, 'claude', 'skills') : join(targetDir, '.claude', 'skills'),
     claudeCommands: compact ? join(base, 'claude', 'commands') : join(targetDir, '.claude', 'commands'),
     claudeSettings: compact
       ? join(base, 'claude', 'settings.json')
@@ -93,6 +95,7 @@ export function displayLayoutPath(relativePath, layout = 'classic') {
   if (layout !== 'compact') return relativePath;
   if (relativePath === 'AGENTS.md' || relativePath === 'CLAUDE.md') return `.agentik/${relativePath}`;
   if (relativePath === 'framework.config.json') return '.agentik/framework.config.json';
+  if (COMPACT_DOC_FILES.includes(relativePath)) return `.agentik/${relativePath}`;
   if (relativePath === '.env.example') return '.agentik/.env.example';
   if (relativePath === '.mcp.json.example') return '.agentik/.mcp.json.example';
   if (relativePath === '.claude') return '.agentik/claude';

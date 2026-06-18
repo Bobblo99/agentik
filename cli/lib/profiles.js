@@ -20,7 +20,7 @@ export const PROFILES = {
     label: 'generic',
     hint: 'CLI, library, scripts, or a non-JS stack',
     disableRules: ['react-nextjs', 'ui-ux', 'api-design'],
-    disableSkills: ['frontend-design', 'react-component', 'api-route', 'db-migration'],
+    disableSkills: ['frontend-design', 'react-component', 'react-quality', 'api-route', 'db-migration'],
   },
 };
 

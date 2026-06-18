@@ -24,7 +24,7 @@ If asked to disable one, refuse and explain it's non-negotiable (AGENTS.md).
 | Module | Active path | Parked path |
 |---|---|---|
 | rule | `rules/<n>.md` + `.cursor/rules/<n>.mdc` | `.framework/disabled/rules/<n>.md` + `.framework/disabled/cursor/<n>.mdc` |
-| skill | `.claude/skills/<n>/` | `.framework/disabled/skills/<n>/` |
+| skill | `.agentik/skills/<n>/` in compact or `.claude/skills/<n>/` in classic | `.agentik/disabled/skills/<n>/` in compact or `.framework/disabled/skills/<n>/` in classic |
 
 ## status
 Read `framework.config.json` and report active vs disabled rules/skills and the
@@ -35,7 +35,7 @@ current `profile`. Run `pnpm check:framework` to confirm no drift.
 2. Set its value to `false` in `framework.config.json`.
 3. Move it active → parked (use `git mv` when possible):
    - rule: move `rules/<n>.md` AND its `.cursor/rules/<n>.mdc` to the parked paths.
-   - skill: move the whole `.claude/skills/<n>/` dir to `.framework/disabled/skills/<n>/`.
+   - skill: move the whole active skill dir to the parked skills dir. In compact layout, also keep/remove the `.agentik/claude/skills/<n>/` mirror with it.
 4. Update AGENTS.md (drop it from the Rules paragraph / Skills table).
 5. `pnpm check:framework` → must be green.
 

@@ -15,7 +15,10 @@
 
 - Agentik CLI supports compact layout via `--layout compact` and new CLI installs default to compact.
 - Compact layout keeps root `AGENTS.md`/`CLAUDE.md` as bridge files and moves framework internals under `.agentik/`.
+- Compact scaffolds now keep Agentik README, changelog, contributing guide, and license under `.agentik/` instead of the project root.
 - `update --layout compact` migrates classic installs into `.agentik/` with collision checks.
+- `react-quality` skill ships for React/fullstack profiles; generic profile parks it.
+- Compact installs expose canonical skills at `.agentik/skills/` for all agents and keep `.agentik/claude/skills/` as a Claude compatibility mirror.
 - Root `pnpm verify` now runs real repo gates; adopter templates still get stub scripts during `build-template`.
 
 ## In progress

@@ -12,6 +12,7 @@ import { execFileSync } from 'node:child_process';
 import { PROFILES } from './profiles.js';
 import {
   bridgeClaude,
+  COMPACT_DOC_FILES,
   configPath,
   moveIfExists,
   normalizeLayout,
@@ -123,8 +124,14 @@ async function makeCompact(targetDir) {
 
   await moveIfExists(join(targetDir, 'AGENTS.md'), join(p.base, 'AGENTS.md'));
   await moveIfExists(join(targetDir, 'CLAUDE.md'), join(p.base, 'CLAUDE.md'));
+  for (const file of COMPACT_DOC_FILES) {
+    await moveIfExists(join(targetDir, file), join(p.base, file));
+  }
   for (const [source, destination] of moves) {
     await moveIfExists(join(targetDir, source), join(p.base, destination));
+  }
+  if (existsSync(join(p.base, 'claude', 'skills'))) {
+    await cp(join(p.base, 'claude', 'skills'), join(p.base, 'skills'), { recursive: true });
   }
 
   await rm(join(targetDir, '.claude'), { recursive: true, force: true });
@@ -206,6 +213,7 @@ export async function scaffold(opts) {
     `${name} — set up with Agentik (${profile}). Run /init-foundation to finish.`,
   );
   await patch(join(targetDir, 'README.md'), /^# Agentik$/m, `# ${name}`);
+  await patch(join(targetDir, '.agentik', 'README.md'), /^# Agentik$/m, `# ${name}`);
   log('stamped project name + profile');
 
   if (git) {

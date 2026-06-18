@@ -2,7 +2,8 @@
 
 Single source of truth for all coding agents (Claude Code, Codex, Cursor, …).
 `CLAUDE.md` points here. Keep this file under ~150 lines — details live in
-`.claude/skills/` and `rules/` and are loaded on demand.
+`.agentik/skills/` (or `.claude/skills/` in classic layout) and `rules/` and
+are loaded on demand.
 
 <!-- ACTIVE_PROFILE: none — run the init-foundation skill (or /init-foundation) first -->
 
@@ -75,8 +76,10 @@ see `docs/memory-model.md` for why this design is what it is).
 
 ## Skills
 
-Located in `.claude/skills/<name>/SKILL.md`. Read the relevant skill before
-starting that kind of work. Core (always active):
+In compact layout, canonical skills live in `.agentik/skills/<name>/SKILL.md`;
+Claude compatibility mirrors live in `.agentik/claude/skills/<name>/SKILL.md`.
+In classic layout, skills live in `.claude/skills/<name>/SKILL.md`. Read the
+relevant skill before starting that kind of work. Core (always active):
 
 | Skill | Use when |
 |---|---|
@@ -86,6 +89,7 @@ starting that kind of work. Core (always active):
 | `write-tests` | Writing or extending tests |
 | `code-review` | Reviewing a diff, PR, or your own finished work |
 | `debugging` | Any bug: reproduce → hypothesize → verify → fix → regression test |
+| `architect` | Architecture decisions: boundaries, dependencies, data flow, ADRs |
 | `customize` | Bring this project's domain in: add a `rules/custom/` rule, a domain term, or a project skill |
 | `configure` | Switch profile or enable/disable rules & skills (reversibly) |
 

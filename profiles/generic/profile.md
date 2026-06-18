@@ -11,14 +11,14 @@ core: 00-verification, security, validation, testing, error-handling, git-commit
   zod specifics map to your stack's validator (note the mapping in conventions).
 
 ## Keeps (skills)
-core: write-spec, execute-spec, write-tests, code-review, debugging
+core: write-spec, execute-spec, write-tests, code-review, debugging, architect
 
 ## Disable (park, not delete)
 Set `false` in `framework.config.json` and move to `.framework/disabled/`
 (the `configure` skill does this). Re-enable any time with `/configure`.
 - rules: react-nextjs, ui-ux, api-design (and typescript if non-TS) — move
   each rule's `.cursor/rules/*.mdc` mirror along with it
-- skills: frontend-design, react-component, api-route, db-migration
+- skills: frontend-design, react-component, react-quality, api-route, db-migration
 
 ## Gate scripts
 The `create-agentik` CLI auto-detects your stack (Python/Rust/Go/JS) and

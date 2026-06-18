@@ -22,7 +22,7 @@ LOCKED_RULES = {
 }
 LOCKED_SKILLS = {
     "write-spec", "execute-spec", "write-tests", "code-review",
-    "debugging", "customize", "init-foundation", "configure",
+    "debugging", "architect", "customize", "init-foundation", "configure",
 }
 
 errors = []
@@ -48,13 +48,15 @@ if layout == "compact":
     ROOT = ".agentik"
     RULES = ".agentik/rules"
     CURSOR_RULES = ".agentik/cursor/rules"
-    SKILLS = ".agentik/claude/skills"
+    SKILLS = ".agentik/skills"
+    CLAUDE_SKILLS = ".agentik/claude/skills"
     DISABLED = ".agentik/disabled"
 else:
     ROOT = "."
     RULES = "rules"
     CURSOR_RULES = ".cursor/rules"
     SKILLS = ".claude/skills"
+    CLAUDE_SKILLS = ".claude/skills"
     DISABLED = ".framework/disabled"
 
 # --- Rules ---
@@ -83,11 +85,14 @@ if os.path.isdir(RULES):
 cfg_skills = cfg.get("skills", {})
 for name, active in cfg_skills.items():
     live = os.path.isfile(f"{SKILLS}/{name}/SKILL.md")
+    claude_live = os.path.isfile(f"{CLAUDE_SKILLS}/{name}/SKILL.md")
     parked = os.path.isfile(f"{DISABLED}/skills/{name}/SKILL.md")
     if name in LOCKED_SKILLS and not active:
         err(f"skill '{name}' is locked core and must stay active (true)")
     if active and not live:
         err(f"skill '{name}' is true but {SKILLS}/{name}/SKILL.md is missing")
+    if active and layout == "compact" and not claude_live:
+        err(f"skill '{name}' is true but Claude mirror {CLAUDE_SKILLS}/{name}/SKILL.md is missing")
     if not active and live:
         err(f"skill '{name}' is false but {SKILLS}/{name}/ is still active (park it)")
     if not active and not live and not parked:

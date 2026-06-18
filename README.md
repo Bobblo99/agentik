@@ -96,14 +96,17 @@ parked, and the project's package-manager adaptation stays intact.
 
 New CLI installs use the compact layout so the project root stays readable.
 `AGENTS.md` remains in the root because agents discover it there; it is only a
-small bridge to the real framework files.
+small bridge to the real framework files. Agentik's own README, changelog,
+contributing guide, and license live under `.agentik/` in compact installs;
+the root belongs to the user's project.
 
 ```
 AGENTS.md              root bridge for AGENTS.md-compatible tools
 CLAUDE.md              root bridge for Claude Code
 .agentik/AGENTS.md     single source of truth
 .agentik/framework.config.json
-.agentik/claude/       commands, settings, and skills
+.agentik/skills/       agent-neutral skills for Codex, Cursor, Claude, others
+.agentik/claude/       Claude compatibility commands, settings, and skill mirror
 .agentik/cursor/       Cursor rule mirrors
 .agentik/rules/        binding standards (+ rules/custom/ for your domain)
 .agentik/disabled/     parked modules — never read, brought back by /configure
@@ -112,6 +115,9 @@ CLAUDE.md              root bridge for Claude Code
 .agentik/profiles/     web-frontend / fullstack / generic
 .agentik/scripts/      verify.sh · check-framework.sh
 .agentik/docs/         orchestration, MCP guidance, adoption guide
+.agentik/README.md     Agentik reference README, not the user's project README
+.agentik/CHANGELOG.md  Agentik changelog
+.agentik/LICENSE       Agentik license
 ```
 
 Older classic installs remain supported. Move one to compact layout with:

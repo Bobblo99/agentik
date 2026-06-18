@@ -84,6 +84,7 @@ await test('web-frontend: parks api-design + api-route + db-migration', async (d
   assert.ok(parked(dir, 'skills/api-route'), 'api-route skill parked');
   assert.ok(parked(dir, 'skills/db-migration'), 'db-migration skill parked');
   assert.ok(active(dir, '.claude/skills/frontend-design'), 'frontend-design kept');
+  assert.ok(active(dir, '.claude/skills/react-quality'), 'react-quality kept');
   const c = await cfg(dir);
   assert.equal(c.profile, 'web-frontend');
   assert.equal(c.rules['api-design'], false);
@@ -99,6 +100,7 @@ await test('generic: parks react-nextjs/ui-ux + 4 skills', async (dir) => {
   assert.ok(r.disabledRules.includes('react-nextjs') && r.disabledRules.includes('ui-ux'));
   assert.ok(parked(dir, 'rules/react-nextjs.md'));
   assert.ok(!active(dir, '.claude/skills/react-component'));
+  assert.ok(parked(dir, 'skills/react-quality'), 'react-quality skill parked');
   const c = await cfg(dir);
   assert.equal(c.profile, 'generic');
   assert.equal(c.rules['react-nextjs'], false);
@@ -111,6 +113,7 @@ await test('fullstack: parks nothing, all active', async (dir) => {
   assert.deepEqual(r.disabledRules, []);
   assert.deepEqual(r.disabledSkills, []);
   assert.ok(active(dir, 'rules/api-design.md'));
+  assert.ok(active(dir, '.claude/skills/react-quality/SKILL.md'));
   const c = await cfg(dir);
   assert.equal(c.profile, 'fullstack');
   assert.ok(Object.values(c.rules).every((v) => v === true));
@@ -128,18 +131,31 @@ await test('compact scaffold: keeps framework internals under .agentik', async (
   assert.ok(active(dir, 'AGENTS.md'), 'root bridge AGENTS.md kept');
   assert.ok(active(dir, 'CLAUDE.md'), 'root bridge CLAUDE.md kept');
   assert.ok(active(dir, '.agentik/framework.config.json'), 'compact config written');
+  assert.ok(active(dir, '.agentik/skills/write-spec/SKILL.md'), 'canonical skills moved under .agentik');
+  assert.ok(active(dir, '.agentik/claude/skills/write-spec/SKILL.md'), 'Claude skill mirror kept');
   assert.ok(active(dir, '.agentik/rules/typescript.md'), 'rules moved under .agentik');
   assert.ok(active(dir, '.agentik/memory/CONTEXT.md'), 'memory moved under .agentik');
   assert.ok(active(dir, '.agentik/profiles/generic/profile.md'), 'profiles moved under .agentik');
   assert.ok(active(dir, '.agentik/specs/TEMPLATE.md'), 'specs moved under .agentik');
   assert.ok(active(dir, '.agentik/docs/adopting.md'), 'docs moved under .agentik');
+  assert.ok(active(dir, '.agentik/README.md'), 'Agentik README moved under .agentik');
+  assert.ok(active(dir, '.agentik/README.de.md'), 'Agentik German README moved under .agentik');
+  assert.ok(active(dir, '.agentik/CHANGELOG.md'), 'Agentik changelog moved under .agentik');
+  assert.ok(active(dir, '.agentik/CONTRIBUTING.md'), 'Agentik contributing guide moved under .agentik');
+  assert.ok(active(dir, '.agentik/LICENSE'), 'Agentik license moved under .agentik');
   assert.ok(!active(dir, 'rules'), 'no root rules dir');
   assert.ok(!active(dir, 'memory'), 'no root memory dir');
   assert.ok(!active(dir, 'profiles'), 'no root profiles dir');
   assert.ok(!active(dir, 'specs'), 'no root specs dir');
   assert.ok(!active(dir, 'docs'), 'no root docs dir');
   assert.ok(!active(dir, '.framework'), 'no root .framework dir');
+  assert.ok(!active(dir, 'README.md'), 'no Agentik README in root');
+  assert.ok(!active(dir, 'README.de.md'), 'no Agentik German README in root');
+  assert.ok(!active(dir, 'CHANGELOG.md'), 'no Agentik changelog in root');
+  assert.ok(!active(dir, 'CONTRIBUTING.md'), 'no Agentik contributing guide in root');
+  assert.ok(!active(dir, 'LICENSE'), 'no Agentik license in root');
   assert.ok(compactParked(dir, 'rules/react-nextjs.md'), 'disabled rule parked compactly');
+  assert.ok(compactParked(dir, 'skills/react-quality/SKILL.md'), 'react-quality parked compactly');
   assert.ok(r.disabledRules.includes('react-nextjs'));
   const c = await compactCfg(dir);
   assert.equal(c.layout, 'compact');
@@ -212,7 +228,10 @@ await test('compact add: code untouched + framework internals under .agentik', a
   assert.ok(active(dir, 'AGENTS.md'), 'root bridge exists');
   assert.ok(active(dir, '.agentik/framework.config.json'));
   assert.ok(active(dir, '.agentik/rules/typescript.md'));
+  assert.ok(active(dir, '.agentik/skills/configure/SKILL.md'));
   assert.ok(active(dir, '.agentik/claude/skills/configure/SKILL.md'));
+  assert.ok(!active(dir, '.agentik/README.md'), 'add does not copy Agentik README into app');
+  assert.ok(!active(dir, '.agentik/LICENSE'), 'add does not copy Agentik license into app');
   assert.ok(!active(dir, 'rules'), 'no root rules dir');
   const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
   assert.equal(pkg.scripts.test, 'jest', 'existing test script untouched');
@@ -400,7 +419,10 @@ await test('update --layout compact: migrates classic project and preserves proj
   assert.equal(r.layout, 'compact');
   assert.ok(active(dir, 'AGENTS.md'), 'root bridge remains');
   assert.ok(active(dir, '.agentik/AGENTS.md'), 'full AGENTS moved under .agentik');
+  assert.ok(active(dir, '.agentik/skills/write-spec/SKILL.md'), 'canonical skills created during migration');
+  assert.ok(active(dir, '.agentik/claude/skills/write-spec/SKILL.md'), 'Claude skills mirror kept');
   assert.ok(active(dir, '.agentik/framework.config.json'));
+  assert.ok(!active(dir, '.agentik/README.md'), 'user README is not moved into .agentik');
   assert.ok(!active(dir, 'framework.config.json'));
   assert.ok(!active(dir, 'rules'));
   assert.ok(!active(dir, 'memory'));
@@ -410,12 +432,35 @@ await test('update --layout compact: migrates classic project and preserves proj
   assert.equal(await readFile(join(dir, '.agentik/specs/project-spec.md'), 'utf8'), 'project spec\n');
   assert.equal(await readFile(join(dir, '.agentik/rules/custom/billing.md'), 'utf8'), 'project rule\n');
   assert.equal(
+    await readFile(join(dir, '.agentik/skills/project-skill/SKILL.md'), 'utf8'),
+    'project skill\n',
+  );
+  assert.equal(
     await readFile(join(dir, '.agentik/claude/skills/project-skill/SKILL.md'), 'utf8'),
     'project skill\n',
   );
   const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
   assert.equal(pkg.scripts.verify, 'bash .agentik/scripts/verify.sh');
   assert.equal(pkg.scripts['check:framework'], 'bash .agentik/scripts/check-framework.sh');
+  assertConsistent(dir);
+});
+
+await test('update --layout compact: moves unchanged Agentik root docs from classic scaffold', async (dir) => {
+  await scaffold({ targetDir: dir, profile: 'fullstack', name: 'Classic', git: false, layout: 'classic' });
+
+  const r = await updateInto({ targetDir: dir, layout: 'compact' });
+
+  assert.equal(r.migrated, true);
+  assert.ok(active(dir, '.agentik/README.md'), 'unchanged Agentik README moved');
+  assert.ok(active(dir, '.agentik/README.de.md'), 'unchanged Agentik German README moved');
+  assert.ok(active(dir, '.agentik/CHANGELOG.md'), 'unchanged Agentik changelog moved');
+  assert.ok(active(dir, '.agentik/CONTRIBUTING.md'), 'unchanged Agentik contributing guide moved');
+  assert.ok(active(dir, '.agentik/LICENSE'), 'unchanged Agentik license moved');
+  assert.ok(!active(dir, 'README.md'), 'unchanged Agentik README removed from root');
+  assert.ok(!active(dir, 'README.de.md'), 'unchanged Agentik German README removed from root');
+  assert.ok(!active(dir, 'CHANGELOG.md'), 'unchanged Agentik changelog removed from root');
+  assert.ok(!active(dir, 'CONTRIBUTING.md'), 'unchanged Agentik contributing guide removed from root');
+  assert.ok(!active(dir, 'LICENSE'), 'unchanged Agentik license removed from root');
   assertConsistent(dir);
 });
 

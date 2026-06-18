@@ -153,6 +153,11 @@ export async function addInto(opts) {
     }
   }
   if (layout === 'compact' && !dryRun) {
+    if (existsSync(join(targetDir, '.agentik', 'claude', 'skills'))) {
+      await cp(join(targetDir, '.agentik', 'claude', 'skills'), join(targetDir, '.agentik', 'skills'), {
+        recursive: true,
+      });
+    }
     await writeCompactBridges(targetDir);
     const cfg = JSON.parse(await readFile(p.config, 'utf8'));
     cfg.layout = 'compact';

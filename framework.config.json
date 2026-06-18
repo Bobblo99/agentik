@@ -22,9 +22,11 @@
     "write-tests": true,
     "code-review": true,
     "debugging": true,
+    "architect": true,
     "customize": true,
     "frontend-design": true,
     "react-component": true,
+    "react-quality": true,
     "api-route": true,
     "db-migration": true
   }

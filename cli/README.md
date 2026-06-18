@@ -123,7 +123,10 @@ CLAUDE.md              root bridge for Claude Code
 
 `AGENTS.md` stays in the root intentionally because agent tools discover it
 there. The detailed framework files live in `.agentik/` so adopted repos do not
-look cluttered.
+look cluttered. Agentik's own README, changelog, contributing guide, and
+license also live in `.agentik/`; the project root is left for the app/library
+itself. Canonical skills live in `.agentik/skills/` for all agents; Claude
+compatibility mirrors live under `.agentik/claude/skills/`.
 
 After create/add: open the project with your agent and run `/init-foundation`
 (or say "init") to wire the quality gates and capture your domain.

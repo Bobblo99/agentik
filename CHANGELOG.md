@@ -18,6 +18,16 @@ this project aims to follow [Semantic Versioning](https://semver.org/).
   moves existing classic installs into `.agentik/` with collision checks before
   moving files, preserving project memory, specs, custom rules/skills, package
   scripts, config, and application code.
+- Clean compact roots: Agentik-owned README, German README, changelog,
+  contributing guide, and license now live under `.agentik/` for compact
+  scaffolds. Classic-to-compact migration moves those files only when they still
+  match the bundled Agentik template, so user-owned project docs stay in root.
+- Agent-neutral compact skills: compact installs now expose canonical skills at
+  `.agentik/skills/` for Codex, Cursor, Claude, and other agents, while keeping
+  `.agentik/claude/skills/` as a Claude compatibility mirror.
+- `react-quality` skill: React/Next.js TypeScript guidance for discriminated
+  unions, `as const` data, literal unions over enums, derived types, component
+  API design, and avoiding weak casts/boolean state explosions.
 - **`update` command** (`npm create agentik update`): refreshes
   framework-owned rules, core skills, commands, profiles, scripts, and docs in
   an adopted project while preserving memory, specs, custom rules/skills,
