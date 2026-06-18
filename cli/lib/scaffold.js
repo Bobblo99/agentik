@@ -19,6 +19,7 @@ import {
   paths,
   writeCompactBridges,
 } from './layout.js';
+import { ensureAgentikPackageTooling } from './package-json.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const TEMPLATE_DIR = join(__dirname, '..', 'template');
@@ -214,6 +215,7 @@ export async function scaffold(opts) {
   );
   await patch(join(targetDir, 'README.md'), /^# Agentik$/m, `# ${name}`);
   await patch(join(targetDir, '.agentik', 'README.md'), /^# Agentik$/m, `# ${name}`);
+  await ensureAgentikPackageTooling(targetDir, layout);
   log('stamped project name + profile');
 
   if (git) {

@@ -69,6 +69,13 @@ npm create agentik@latest update
 npm create agentik@latest update -- --layout compact  # alte Installationen umziehen
 ```
 
+Nach der Installation gibt es kurze lokale Commands:
+
+```bash
+npm run agentik:update
+npm run agentik:check
+```
+
 Erhalten bleiben unter anderem Memory, Specs, `rules/custom/`, eigene Skills,
 Konfiguration, package.json und der Anwendungscode.
 

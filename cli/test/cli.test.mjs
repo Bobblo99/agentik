@@ -160,6 +160,11 @@ await test('compact scaffold: keeps framework internals under .agentik', async (
   const c = await compactCfg(dir);
   assert.equal(c.layout, 'compact');
   assert.equal(c.profile, 'generic');
+  const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
+  assert.equal(pkg.devDependencies['create-agentik'], '^0.2.1');
+  assert.equal(pkg.scripts.agentik, 'agentik');
+  assert.equal(pkg.scripts['agentik:update'], 'agentik update --layout compact');
+  assert.equal(pkg.scripts['agentik:check'], 'agentik check');
   assert.match(await readFile(join(dir, 'AGENTS.md'), 'utf8'), /\.agentik\/AGENTS\.md/);
   assertConsistent(dir);
 });
@@ -235,6 +240,10 @@ await test('compact add: code untouched + framework internals under .agentik', a
   assert.ok(!active(dir, 'rules'), 'no root rules dir');
   const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
   assert.equal(pkg.scripts.test, 'jest', 'existing test script untouched');
+  assert.equal(pkg.devDependencies['create-agentik'], '^0.2.1');
+  assert.equal(pkg.scripts.agentik, 'agentik');
+  assert.equal(pkg.scripts['agentik:update'], 'agentik update --layout compact');
+  assert.equal(pkg.scripts['agentik:check'], 'agentik check');
   assert.equal(pkg.scripts.verify, 'bash .agentik/scripts/verify.sh');
   assert.equal(pkg.scripts['check:framework'], 'bash .agentik/scripts/check-framework.sh');
   assertConsistent(dir);
@@ -304,6 +313,12 @@ await test('cli entry: --version and --help route correctly', async () => {
   const cliPackage = JSON.parse(await readFile(join(here, '..', 'package.json'), 'utf8'));
   assert.equal(cliPackage.name, 'create-agentik');
   assert.equal(cliPackage.bin['create-agentik'], 'index.js');
+  assert.equal(cliPackage.bin.agentik, 'index.js');
+});
+
+await test('cli entry: check routes to framework integrity check', async (dir) => {
+  execFileSync('node', [INDEX, dir, '--profile', 'generic', '--name', 'X', '--yes', '--no-git']);
+  execFileSync('node', [INDEX, 'check', dir, '--yes'], { stdio: 'pipe' });
 });
 
 await test('cli entry: detects npm bin symlink as main', async (dir) => {

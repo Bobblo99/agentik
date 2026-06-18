@@ -4,7 +4,8 @@
   "description": "Scaffold an agentic-coding project: persistent memory, spec-driven workflow, and machine-enforced quality gates for Claude Code, Codex, Cursor and any AGENTS.md tool.",
   "type": "module",
   "bin": {
-    "create-agentik": "index.js"
+    "create-agentik": "index.js",
+    "agentik": "index.js"
   },
   "files": [
     "index.js",

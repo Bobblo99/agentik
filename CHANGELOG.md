@@ -10,6 +10,10 @@ this project aims to follow [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Added
+- Installed project commands: scaffold/add now add `create-agentik` as a
+  devDependency and wire `agentik`, `agentik:update`, and `agentik:check`
+  scripts without overwriting existing scripts. The package also exposes an
+  `agentik` bin alias and a `check` subcommand.
 - **Compact layout**: new CLI installs can keep framework internals under
   `.agentik/` while leaving only small root bridge files (`AGENTS.md`,
   `CLAUDE.md`) for agent discovery. `--layout classic` remains available for

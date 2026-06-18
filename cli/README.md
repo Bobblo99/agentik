@@ -61,6 +61,13 @@ npm create agentik@latest my-app -- \
 #   -y, --yes            non-interactive (use flags + defaults)
 ```
 
+New projects also get local scripts:
+
+```bash
+npm run agentik:update
+npm run agentik:check
+```
+
 ## Already have a project? `add`
 
 Drop the framework into an existing repo — it copies only framework files and
@@ -104,6 +111,13 @@ cd my-project
 npm create agentik@latest update -- --dry-run
 npm create agentik@latest update
 npm create agentik@latest update -- --layout compact  # migrate old classic installs
+```
+
+After Agentik is installed in a project, use the shorter local commands:
+
+```bash
+npm run agentik:update
+npm run agentik:check
 ```
 
 The command updates framework-owned rules, core skills, commands, profiles,

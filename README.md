@@ -14,6 +14,7 @@ npm create agentik@latest my-app        # new project
 npm create agentik@latest add           # …or add to an existing one
 npm create agentik@latest update        # refresh framework-owned files later
 npm create agentik@latest update -- --layout compact  # migrate old installs
+npm run agentik:update                  # after Agentik is installed locally
 ```
 
 🇩🇪 Deutsche Version: [README.de.md](README.de.md)
@@ -91,6 +92,13 @@ npm create agentik@latest update -- --layout compact  # migrate classic installs
 and docs while preserving memory, specs, custom rules, custom skills,
 configuration, package.json, and application code. Disabled modules stay
 parked, and the project's package-manager adaptation stays intact.
+
+Installed projects get `create-agentik` as a devDependency plus simple scripts:
+
+```bash
+npm run agentik:update
+npm run agentik:check
+```
 
 ## Layout
 

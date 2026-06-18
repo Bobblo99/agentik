@@ -10,6 +10,7 @@ import { applyProfile, TEMPLATE_DIR } from './scaffold.js';
 import { PROFILES, PROFILE_NAMES } from './profiles.js';
 import { detect, detectProfile, pmRunner } from './detect.js';
 import { displayLayoutPath, normalizeLayout, paths, writeCompactBridges } from './layout.js';
+import { ensureAgentikPackageTooling, packageIndent, packageTrailingNewline } from './package-json.js';
 
 // Re-exported for the CLI/tests (detection lives in detect.js now).
 export { detectProfile, detect };
@@ -79,10 +80,9 @@ async function mergeScripts(pkgPath, gates = {}, dryRun = false, layout = 'class
   ensure('lint', gates.lint || STUB('eslint .'));
   ensure('test', gates.test || STUB('vitest run'));
   // Preserve the file's existing indentation (tabs or N spaces) and trailing newline.
-  const indentMatch = raw.match(/\n([\t ]+)\S/);
-  const indent = indentMatch ? indentMatch[1] : 2;
-  const trailingNewline = raw.endsWith('\n') ? '\n' : '';
-  if (added.length && !dryRun) await writeFile(pkgPath, JSON.stringify(pkg, null, indent) + trailingNewline);
+  if (added.length && !dryRun) {
+    await writeFile(pkgPath, JSON.stringify(pkg, null, packageIndent(raw)) + packageTrailingNewline(raw));
+  }
   return added;
 }
 
@@ -185,12 +185,16 @@ export async function addInto(opts) {
     if (hasPkg) {
       scriptsAdded = await mergeScripts(pkgPath, proposal.gates, true, layout);
       pmAdapted = await adaptRunner(targetDir, proposal.packageManager, true, layout);
+      const tooling = await ensureAgentikPackageTooling(targetDir, layout, true);
+      scriptsAdded.push(...tooling.scriptsAdded);
     }
   } else {
     applied = await applyProfile(targetDir, profile, log);
     if (hasPkg) {
       scriptsAdded = await mergeScripts(pkgPath, proposal.gates, false, layout);
       pmAdapted = await adaptRunner(targetDir, proposal.packageManager, false, layout);
+      const tooling = await ensureAgentikPackageTooling(targetDir, layout);
+      scriptsAdded.push(...tooling.scriptsAdded);
       if (scriptsAdded.length) log(`added package.json scripts: ${scriptsAdded.join(', ')}`);
     } else {
       const g = proposal.gates || {};

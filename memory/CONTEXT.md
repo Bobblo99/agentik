@@ -19,6 +19,7 @@
 - `update --layout compact` migrates classic installs into `.agentik/` with collision checks.
 - `react-quality` skill ships for React/fullstack profiles; generic profile parks it.
 - Compact installs expose canonical skills at `.agentik/skills/` for all agents and keep `.agentik/claude/skills/` as a Claude compatibility mirror.
+- Scaffold/add now install `create-agentik` as a devDependency and add `agentik`, `agentik:update`, and `agentik:check` scripts when a package.json exists.
 - Root `pnpm verify` now runs real repo gates; adopter templates still get stub scripts during `build-template`.
 
 ## In progress
@@ -29,8 +30,8 @@
 ## Next steps
 
 <Ordered, concrete.>
-1. Bump CLI version for the compact-layout release.
-2. Publish the next `create-agentik` version after release review.
+1. Commit and push the installed-command UX changes.
+2. Bump/publish the next `create-agentik` version after release review.
 
 ## Open questions / blockers
 

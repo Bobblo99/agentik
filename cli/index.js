@@ -10,7 +10,7 @@
 
 import { parseArgs } from 'node:util';
 import { basename, resolve } from 'node:path';
-import { readFileSync, realpathSync } from 'node:fs';
+import { existsSync, readFileSync, realpathSync } from 'node:fs';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { execFileSync } from 'node:child_process';
 import { scaffold } from './lib/scaffold.js';
@@ -39,6 +39,7 @@ Usage:
   npm create agentik@latest [dir]        new project (scaffold)
   npm create agentik@latest add [dir]    existing project (overlay)
   npm create agentik@latest update [dir] refresh an adopted project
+  agentik check [dir]                    run Agentik integrity checks
 
 New project options:
   --profile <name>   ${PROFILE_NAMES.join(' | ')}   (default: web-frontend)
@@ -56,6 +57,10 @@ add (existing project) — copies only framework files, never touches your code:
 update (adopted project) — refreshes framework-owned files, preserves your work:
   --dry-run          show what would change; write nothing
   --layout compact   migrate a classic install into .agentik/ compact layout
+
+Installed project scripts:
+  npm run agentik:update                 update framework-owned files
+  npm run agentik:check                  run framework integrity checks
 
 Common:
   -y, --yes          non-interactive; use flags + defaults (no prompts)
@@ -453,6 +458,17 @@ async function runUpdateInteractive({ values, dir }) {
   }
 }
 
+function runCheck({ dir }) {
+  const targetDir = dir || '.';
+  const compact = resolve(targetDir, '.agentik/scripts/check-framework.sh');
+  const classic = resolve(targetDir, 'scripts/check-framework.sh');
+  const script = existsSync(compact) ? compact : classic;
+  if (!existsSync(script)) {
+    throw new Error(`No Agentik check script found in ${targetDir}. Run "agentik add" first.`);
+  }
+  execFileSync('bash', [script], { cwd: targetDir, stdio: 'inherit' });
+}
+
 async function main() {
   const { values, positionals } = parse();
   if (values.version) {
@@ -477,6 +493,10 @@ async function main() {
     const dir = positionals[1];
     if (values.yes) await runUpdateNonInteractive({ values, dir });
     else await runUpdateInteractive({ values, dir });
+    return;
+  }
+  if (positionals[0] === 'check') {
+    runCheck({ dir: positionals[1] });
     return;
   }
   const dir = positionals[0];
