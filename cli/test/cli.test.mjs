@@ -21,6 +21,10 @@ const repoRoot = join(here, '..', '..');
 const checkConfig = join(repoRoot, 'scripts', '_check_config.py');
 const templateDir = join(here, '..', 'template');
 
+// Tooling pin tracks the running CLI version, so derive it instead of hardcoding.
+const cliVersion = JSON.parse(await readFile(join(here, '..', 'package.json'), 'utf8')).version;
+const expectedAgentikDep = `^${cliVersion}`;
+
 // Best-effort consistency check: portable across CI (python3 / python / absent).
 function pythonCmd() {
   for (const c of ['python3', 'python']) {
@@ -161,7 +165,7 @@ await test('compact scaffold: keeps framework internals under .agentik', async (
   assert.equal(c.layout, 'compact');
   assert.equal(c.profile, 'generic');
   const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
-  assert.equal(pkg.devDependencies['create-agentik'], '^0.2.1');
+  assert.equal(pkg.devDependencies['create-agentik'], expectedAgentikDep);
   assert.equal(pkg.scripts.agentik, 'agentik');
   assert.equal(pkg.scripts['agentik:update'], 'agentik update --layout compact');
   assert.equal(pkg.scripts['agentik:check'], 'agentik check');
@@ -240,7 +244,7 @@ await test('compact add: code untouched + framework internals under .agentik', a
   assert.ok(!active(dir, 'rules'), 'no root rules dir');
   const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
   assert.equal(pkg.scripts.test, 'jest', 'existing test script untouched');
-  assert.equal(pkg.devDependencies['create-agentik'], '^0.2.1');
+  assert.equal(pkg.devDependencies['create-agentik'], expectedAgentikDep);
   assert.equal(pkg.scripts.agentik, 'agentik');
   assert.equal(pkg.scripts['agentik:update'], 'agentik update --layout compact');
   assert.equal(pkg.scripts['agentik:check'], 'agentik check');
