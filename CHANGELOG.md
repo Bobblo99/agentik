@@ -91,6 +91,13 @@ this project aims to follow [Semantic Versioning](https://semver.org/).
   axe-playwright enforcement in `rules/testing.md`.
 - Release hygiene: `CONTRIBUTING.md`, this changelog, package metadata.
 
+### Fixed
+- Greenfield `scaffold` now writes a **plain** `package.json` (project name as an
+  npm slug, `version`, `private`, scripts) instead of copying Agentik's own
+  identity. New projects no longer inherit the framework author, repository URL,
+  description, or keywords. Scaffolding with `--force` into a directory that
+  already has a `package.json` preserves it and only merges in missing scripts.
+
 ### Changed
 - Renamed the product to **Agentik**, the npm package to `create-agentik`, and
   the canonical repository to `Bobblo99/agentik`.

@@ -45,9 +45,10 @@ npm create agentik@latest add
 ```
 
 Die CLI erkennt bei bestehenden Projekten Stack, Paketmanager und vorhandene
-Quality-Gates. Das gewählte **Profil** (`web-frontend`, `fullstack`, `generic`)
-aktiviert die passenden Rules und Skills und parkt den Rest reversibel in
-`.agentik/disabled/`. Danach:
+Quality-Gates. Neue Projekte bekommen eine schlanke `package.json` (benannt nach
+deinem Projekt, ohne Framework-Author/Repository). Das gewählte **Profil**
+(`web-frontend`, `fullstack`, `generic`) aktiviert die passenden Rules und Skills
+und parkt den Rest reversibel in `.agentik/disabled/`. Danach:
 
 ```
 /write-spec User-Login bauen      # Agent plant, du gibst frei

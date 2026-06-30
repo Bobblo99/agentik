@@ -20,6 +20,7 @@
 - `react-quality` skill ships for React/fullstack profiles; generic profile parks it.
 - Compact installs expose canonical skills at `.agentik/skills/` for all agents and keep `.agentik/claude/skills/` as a Claude compatibility mirror.
 - Scaffold/add now install `create-agentik` as a devDependency and add `agentik`, `agentik:update`, and `agentik:check` scripts when a package.json exists.
+- Greenfield `scaffold` writes a PLAIN package.json (project name as npm slug, version, `private`, scripts) — no Agentik author/repository/keywords/description. `--force` into a dir with an existing package.json preserves it and only merges missing scripts. `add` never copies package.json.
 - Root `pnpm verify` now runs real repo gates; adopter templates still get stub scripts during `build-template`.
 
 ## In progress
@@ -30,8 +31,7 @@
 ## Next steps
 
 <Ordered, concrete.>
-1. Commit and push the installed-command UX changes.
-2. Bump/publish the next `create-agentik` version after release review.
+1. Commit the plain-package.json fix; bump/publish `create-agentik` 0.2.3 after review.
 
 ## Open questions / blockers
 

@@ -51,8 +51,10 @@ claude               # or Codex, Cursor, …
 ```
 
 The scaffolder does the structural work for you (template, profile,
-`.agentik/framework.config.json`, git). `/init-foundation` then handles the judgment
-parts: wiring real gate commands and capturing your business domain.
+`.agentik/framework.config.json`, git). New projects get a plain `package.json`
+(named after your project, no framework author/repository metadata).
+`/init-foundation` then handles the judgment parts: wiring real gate commands and
+capturing your business domain.
 
 **Already have a project?** Add the framework without touching your code:
 
