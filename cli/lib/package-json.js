@@ -11,6 +11,36 @@ export function packageTrailingNewline(raw) {
   return raw.endsWith('\n') ? '\n' : '';
 }
 
+/**
+ * Turn a human project name into a valid, plain npm package name.
+ * Lowercase, non-alphanumerics collapse to single dashes, trimmed.
+ * @param {string} name
+ * @returns {string}
+ */
+export function slugifyPackageName(name) {
+  const slug = String(name || '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  return slug || 'app';
+}
+
+/**
+ * Stamp the real project name into a freshly scaffolded (plain) package.json.
+ * Greenfield only — never call this on a user's pre-existing package.json.
+ * @param {string} targetDir
+ * @param {string} name
+ */
+export async function stampProjectName(targetDir, name) {
+  const pkgPath = join(targetDir, 'package.json');
+  if (!existsSync(pkgPath)) return;
+  const raw = await readFile(pkgPath, 'utf8');
+  const pkg = JSON.parse(raw);
+  pkg.name = slugifyPackageName(name);
+  await writeFile(pkgPath, JSON.stringify(pkg, null, packageIndent(raw)) + packageTrailingNewline(raw));
+}
+
 export async function readCliVersion() {
   const pkg = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
   return pkg.version;

@@ -102,18 +102,24 @@ for (const k of Object.keys(cfg.rules)) cfg.rules[k] = true;
 for (const k of Object.keys(cfg.skills)) cfg.skills[k] = true;
 await writeFile(cfgPath, JSON.stringify(cfg, null, 2) + '\n');
 
+// The adopter template ships a PLAIN package.json — never Agentik's own
+// identity. scaffold stamps the real project name; add never copies this file.
 // The repository dogfoods real gates, but adopter templates start with stubs
 // until init-foundation wires project-specific commands.
 const pkgPath = join(dest, 'package.json');
-const pkg = JSON.parse(await readFile(pkgPath, 'utf8'));
-pkg.scripts = {
-  verify: 'bash scripts/verify.sh',
-  'check:framework': 'bash scripts/check-framework.sh',
-  typecheck: "echo '[stub] init-foundation replaces this with e.g. tsc --noEmit'",
-  lint: "echo '[stub] init-foundation replaces this with e.g. eslint .'",
-  test: "echo '[stub] init-foundation replaces this with e.g. vitest run'",
+const plainPkg = {
+  name: 'my-project',
+  version: '0.1.0',
+  private: true,
+  scripts: {
+    verify: 'bash scripts/verify.sh',
+    'check:framework': 'bash scripts/check-framework.sh',
+    typecheck: "echo '[stub] init-foundation replaces this with e.g. tsc --noEmit'",
+    lint: "echo '[stub] init-foundation replaces this with e.g. eslint .'",
+    test: "echo '[stub] init-foundation replaces this with e.g. vitest run'",
+  },
 };
-await writeFile(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
+await writeFile(pkgPath, JSON.stringify(plainPkg, null, 2) + '\n');
 
 // Uninitialized profile marker.
 await patchFile(

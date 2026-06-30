@@ -76,7 +76,10 @@ await test('template snapshot excludes framework development state', async () =>
   assert.deepEqual(specs.sort(), ['TEMPLATE.md', 'archive'], 'active development specs excluded');
   assert.match(await readFile(join(templateDir, 'README.md'), 'utf8'), /^# Agentik$/m);
   const templatePackage = JSON.parse(await readFile(join(templateDir, 'package.json'), 'utf8'));
-  assert.equal(templatePackage.name, 'agentik');
+  assert.equal(templatePackage.name, 'my-project', 'neutral placeholder name, not "agentik"');
+  assert.ok(!('author' in templatePackage), 'no Agentik author leaks into adopter template');
+  assert.ok(!('repository' in templatePackage), 'no Agentik repository leaks into adopter template');
+  assert.ok(!('keywords' in templatePackage), 'no Agentik keywords leak into adopter template');
 });
 
 await test('web-frontend: parks api-design + api-route + db-migration', async (dir) => {
@@ -122,6 +125,42 @@ await test('fullstack: parks nothing, all active', async (dir) => {
   assert.equal(c.profile, 'fullstack');
   assert.ok(Object.values(c.rules).every((v) => v === true));
   assertConsistent(dir);
+});
+
+await test('greenfield package.json is plain: no Agentik identity', async (dir) => {
+  await scaffold({ targetDir: dir, profile: 'generic', name: 'Demo App', git: false });
+  const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
+  assert.ok(!('author' in pkg), 'no author');
+  assert.ok(!('repository' in pkg), 'no repository');
+  assert.ok(!('keywords' in pkg), 'no keywords');
+  assert.ok(!/reusable foundation template/i.test(pkg.description || ''), 'no Agentik description');
+  assert.equal(pkg.version, '0.1.0');
+  assert.equal(pkg.private, true);
+  // gate stubs + Agentik tooling survive.
+  assert.ok(pkg.scripts.verify && pkg.scripts['check:framework'], 'gate scripts present');
+  assert.equal(pkg.devDependencies['create-agentik'], expectedAgentikDep);
+  assert.ok(pkg.scripts['agentik:update'], 'agentik tooling scripts present');
+});
+
+await test('greenfield stamps the project name as an npm slug', async (dir) => {
+  await scaffold({ targetDir: dir, profile: 'generic', name: 'My Cool App', git: false });
+  const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
+  assert.equal(pkg.name, 'my-cool-app');
+});
+
+await test('scaffold --force preserves an existing package.json', async (dir) => {
+  await writeFile(
+    join(dir, 'package.json'),
+    JSON.stringify({ name: 'keepme', version: '9.9.9', customField: 1, scripts: {} }, null, 2) + '\n',
+  );
+  await scaffold({ targetDir: dir, profile: 'generic', name: 'Ignored', git: false, force: true });
+  const pkg = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'));
+  assert.equal(pkg.name, 'keepme', 'user name untouched');
+  assert.equal(pkg.version, '9.9.9', 'user version untouched');
+  assert.equal(pkg.customField, 1, 'user fields untouched');
+  assert.ok(!('author' in pkg), 'no Agentik identity injected');
+  assert.ok(pkg.scripts.verify, 'gate scripts merged in');
+  assert.equal(pkg.devDependencies['create-agentik'], expectedAgentikDep, 'tooling merged in');
 });
 
 await test('compact scaffold: keeps framework internals under .agentik', async (dir) => {

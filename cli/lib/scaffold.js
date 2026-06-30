@@ -19,7 +19,12 @@ import {
   paths,
   writeCompactBridges,
 } from './layout.js';
-import { ensureAgentikPackageTooling } from './package-json.js';
+import {
+  ensureAgentikPackageTooling,
+  packageIndent,
+  packageTrailingNewline,
+  stampProjectName,
+} from './package-json.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const TEMPLATE_DIR = join(__dirname, '..', 'template');
@@ -158,6 +163,32 @@ async function makeCompact(targetDir) {
   );
 }
 
+// Merge the framework's gate scripts into a package.json the user already had,
+// without clobbering scripts they defined. Layout-aware (compact → .agentik/).
+async function mergeGateScripts(pkgPath, layout) {
+  const raw = await readFile(pkgPath, 'utf8');
+  const pkg = JSON.parse(raw);
+  pkg.scripts = pkg.scripts || {};
+  const base = layout === 'compact' ? '.agentik/scripts' : 'scripts';
+  const stubs = {
+    verify: `bash ${base}/verify.sh`,
+    'check:framework': `bash ${base}/check-framework.sh`,
+    typecheck: "echo '[stub] init-foundation replaces this with e.g. tsc --noEmit'",
+    lint: "echo '[stub] init-foundation replaces this with e.g. eslint .'",
+    test: "echo '[stub] init-foundation replaces this with e.g. vitest run'",
+  };
+  let changed = false;
+  for (const [k, v] of Object.entries(stubs)) {
+    if (!(k in pkg.scripts)) {
+      pkg.scripts[k] = v;
+      changed = true;
+    }
+  }
+  if (changed) {
+    await writeFile(pkgPath, JSON.stringify(pkg, null, packageIndent(raw)) + packageTrailingNewline(raw));
+  }
+}
+
 /**
  * @param {object} opts
  * @param {string} opts.targetDir   absolute or relative path to scaffold into
@@ -190,6 +221,11 @@ export async function scaffold(opts) {
     throw new Error(`Target ${targetDir} is not empty. Use --force to scaffold anyway.`);
   }
 
+  // A package.json may already exist when scaffolding with --force into a
+  // non-empty dir. Preserve it verbatim — the template copy must not clobber it.
+  const pkgPath = join(targetDir, 'package.json');
+  const existingPkg = existsSync(pkgPath) ? await readFile(pkgPath, 'utf8') : null;
+
   await mkdir(targetDir, { recursive: true });
   await cp(templateDir, targetDir, { recursive: true });
   log(`copied template → ${targetDir}`);
@@ -215,6 +251,15 @@ export async function scaffold(opts) {
   );
   await patch(join(targetDir, 'README.md'), /^# Agentik$/m, `# ${name}`);
   await patch(join(targetDir, '.agentik', 'README.md'), /^# Agentik$/m, `# ${name}`);
+
+  // package.json: restore the user's pre-existing file (only merge gate scripts),
+  // or stamp the real project name into the freshly scaffolded plain one.
+  if (existingPkg !== null) {
+    await writeFile(pkgPath, existingPkg);
+    await mergeGateScripts(pkgPath, layout);
+  } else {
+    await stampProjectName(targetDir, name);
+  }
   await ensureAgentikPackageTooling(targetDir, layout);
   log('stamped project name + profile');
 
